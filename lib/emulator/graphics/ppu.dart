@@ -96,11 +96,7 @@ class PPU {
     spritesDrawnPerLine.fillRange(0, spritesDrawnPerLine.length, 0);
 
     if (cpu.cartridge.gameboyType == GameboyType.COLOR) {
-      gbcBackgroundPaletteMemory.fillRange(
-        0,
-        gbcBackgroundPaletteMemory.length,
-        0x1f,
-      );
+      gbcBackgroundPaletteMemory.fillRange(0, gbcBackgroundPaletteMemory.length, 0x1f);
 
       for (int i = 0; i < spritePalettes.length; i++) {
         List<int> colors = List<int>.filled(4, 0);
@@ -153,8 +149,7 @@ class PPU {
   /// @param j The int index of the palette being updated.
   void updatePalette(List<int> from, Palette to, int i, int j) {
     // Read an RGB value from RAM
-    int data =
-        ((from[i * 8 + j * 2 + 1] & 0xff) << 8) | (from[i * 8 + j * 2] & 0xff);
+    int data = ((from[i * 8 + j * 2 + 1] & 0xff) << 8) | (from[i * 8 + j * 2] & 0xff);
 
     // Extract components
     int red = (data & 0x1f);
@@ -177,12 +172,7 @@ class PPU {
     gbcBackgroundPaletteMemory[reg] = data;
 
     int palette = reg >> 3;
-    updatePalette(
-      gbcBackgroundPaletteMemory,
-      bgPalettes[palette],
-      palette,
-      (reg >> 1) & 0x3,
-    );
+    updatePalette(gbcBackgroundPaletteMemory, bgPalettes[palette], palette, (reg >> 1) & 0x3);
   }
 
   /// Updates an entry of sprite palette RAM. Internal function for use in a Memory controller.
@@ -193,12 +183,7 @@ class PPU {
     gbcSpritePaletteMemory[reg] = data;
 
     int palette = reg >> 3;
-    updatePalette(
-      gbcSpritePaletteMemory,
-      spritePalettes[palette],
-      palette,
-      (reg >> 1) & 0x3,
-    );
+    updatePalette(gbcSpritePaletteMemory, spritePalettes[palette], palette, (reg >> 1) & 0x3);
   }
 
   /// Tick the LCD.
@@ -243,47 +228,31 @@ class PPU {
 
       bool isVBlank = 144 <= ly;
       if (!isVBlank) {
-        cpu.mmu.dma!.tick();
+        cpu.mmu.dma?.tick();
       }
 
-      cpu.mmu.writeRegisterByte(
-        MemoryRegisters.LCD_STAT,
-        cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) & ~0x03,
-      );
+      cpu.mmu.writeRegisterByte(MemoryRegisters.LCD_STAT, cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) & ~0x03);
 
       int mode = 0;
       if (isVBlank) {
         mode = 0x01;
       }
 
-      cpu.mmu.writeRegisterByte(
-        MemoryRegisters.LCD_STAT,
-        cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) | mode,
-      );
+      cpu.mmu.writeRegisterByte(MemoryRegisters.LCD_STAT, cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) | mode);
 
       int lcdStat = cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT);
 
       if (displayEnabled && !isVBlank) {
         // LCDC Status Interrupt (To indicate to the user when the video hardware is about to redraw a given LCD line)
-        if ((lcdStat &
-                MemoryRegisters.LCD_STAT_COINCIDENCE_INTERRUPT_ENABLED_BIT) !=
-            0) {
+        if ((lcdStat & MemoryRegisters.LCD_STAT_COINCIDENCE_INTERRUPT_ENABLED_BIT) != 0) {
           int lyc = (cpu.mmu.readRegisterByte(MemoryRegisters.LYC) & 0xff);
 
           // Fire when LYC == LY
           if (lyc == ly) {
             cpu.setInterruptTriggered(MemoryRegisters.LCDC_BIT);
-            cpu.mmu.writeRegisterByte(
-              MemoryRegisters.LCD_STAT,
-              cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) |
-                  MemoryRegisters.LCD_STAT_COINCIDENCE_BIT,
-            );
+            cpu.mmu.writeRegisterByte(MemoryRegisters.LCD_STAT, cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) | MemoryRegisters.LCD_STAT_COINCIDENCE_BIT);
           } else {
-            cpu.mmu.writeRegisterByte(
-              MemoryRegisters.LCD_STAT,
-              cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) &
-                  ~MemoryRegisters.LCD_STAT_COINCIDENCE_BIT,
-            );
+            cpu.mmu.writeRegisterByte(MemoryRegisters.LCD_STAT, cpu.mmu.readRegisterByte(MemoryRegisters.LCD_STAT) & ~MemoryRegisters.LCD_STAT_COINCIDENCE_BIT);
           }
         }
 
@@ -350,10 +319,7 @@ class PPU {
     }
 
     // If the window appears in this scanline, draw it
-    if (windowEnabled() &&
-        scanline >= getWindowPosY() &&
-        getWindowPosX() < LCD_WIDTH &&
-        getWindowPosY() >= 0) {
+    if (windowEnabled() && scanline >= getWindowPosY() && getWindowPosX() < LCD_WIDTH && getWindowPosY() >= 0) {
       drawWindow(buffer, scanline);
     }
   }
@@ -390,14 +356,10 @@ class PPU {
 
     // 20 8x8 tiles fit in a 160px-wide screen
     for (int x = 0; x < 21; x++) {
-      int addressBase =
-          offset + ((y + scrollY ~/ 8) % 32 * 32) + ((x + scrollX ~/ 8) % 32);
+      int addressBase = offset + ((y + scrollY ~/ 8) % 32 * 32) + ((x + scrollX ~/ 8) % 32);
 
       // Add 256 to jump into second tile pattern table
-      int tile =
-          tileDataOffset == 0
-              ? (cpu.mmu.readVRAM(addressBase) & 0xFF)
-              : (cpu.mmu.readVRAM(addressBase) + 256);
+      int tile = tileDataOffset == 0 ? (cpu.mmu.readVRAM(addressBase) & 0xFF) : (cpu.mmu.readVRAM(addressBase) + 256);
 
       int gbcVramBank = 0;
       int gbcPalette = 0;
@@ -406,9 +368,7 @@ class PPU {
 
       // BG Map Attributes, in CGB Mode, an additional map of 32x32 ints is stored in VRAM Bank 1
       if (cpu.cartridge.gameboyType == GameboyType.COLOR) {
-        int attributes = cpu.mmu.readVRAM(
-          MemoryAddresses.VRAM_PAGESIZE + addressBase,
-        );
+        int attributes = cpu.mmu.readVRAM(MemoryAddresses.VRAM_PAGESIZE + addressBase);
 
         // Tile VRAM Bank number
         if (attributes & 0x8 != 0) {
@@ -426,19 +386,7 @@ class PPU {
       }
 
       // Delegate tile drawing
-      drawTile(
-        bgPalettes[gbcPalette],
-        data,
-        -(scrollX % 8) + x * 8,
-        -(scrollY % 8) + y * 8,
-        tile,
-        scanline,
-        flipX,
-        flipY,
-        gbcVramBank,
-        0,
-        false,
-      );
+      drawTile(bgPalettes[gbcPalette], data, -(scrollX % 8) + x * 8, -(scrollY % 8) + y * 8, tile, scanline, flipX, flipY, gbcVramBank, 0, false);
     }
   }
 
@@ -462,10 +410,7 @@ class PPU {
       int addressBase = tileMapOffset + (x + y * 32);
 
       // add 256 to jump into second tile pattern table
-      int tile =
-          tileDataOffset == 0
-              ? cpu.mmu.readVRAM(addressBase) & 0xff
-              : cpu.mmu.readVRAM(addressBase) + 256;
+      int tile = tileDataOffset == 0 ? cpu.mmu.readVRAM(addressBase) & 0xff : cpu.mmu.readVRAM(addressBase) + 256;
 
       int gbcVramBank = 0;
       bool flipX = false;
@@ -474,9 +419,7 @@ class PPU {
 
       // Same rules apply here as for background tiles.
       if (cpu.cartridge.gameboyType == GameboyType.COLOR) {
-        int attributes = cpu.mmu.readVRAM(
-          MemoryAddresses.VRAM_PAGESIZE + addressBase,
-        );
+        int attributes = cpu.mmu.readVRAM(MemoryAddresses.VRAM_PAGESIZE + addressBase);
 
         if ((attributes & 0x8) != 0) {
           gbcVramBank = 1;
@@ -487,19 +430,7 @@ class PPU {
         gbcPalette = attributes & 0x07;
       }
 
-      drawTile(
-        bgPalettes[gbcPalette],
-        data,
-        posX + x * 8,
-        posY + y * 8,
-        tile,
-        scanline,
-        flipX,
-        flipY,
-        gbcVramBank,
-        PPU.P_6,
-        false,
-      );
+      drawTile(bgPalettes[gbcPalette], data, posX + x * 8, posY + y * 8, tile, scanline, flipX, flipY, gbcVramBank, PPU.P_6, false);
     }
   }
 
@@ -516,19 +447,7 @@ class PPU {
   /// @param bank The tile bank to use.
   /// @param basePriority The current priority for the given tile.
   /// @param sprite Whether the tile beints to a sprite or not.
-  void drawTile(
-    Palette palette,
-    List<int> data,
-    int x,
-    int y,
-    int tile,
-    int scanline,
-    bool flipX,
-    bool flipY,
-    int bank,
-    int basePriority,
-    bool sprite,
-  ) {
+  void drawTile(Palette palette, List<int> data, int x, int y, int tile, int scanline, bool flipX, bool flipY, int bank, int basePriority, bool sprite) {
     // Store a local copy to save a lot of load opcodes.
     int line = scanline - y;
     int addressBase = MemoryAddresses.VRAM_PAGESIZE * bank + tile * 16;
@@ -555,19 +474,12 @@ class PPU {
       int address = addressBase + logicalLine * 2;
 
       // Upper bit of the color number
-      int paletteUpper =
-          (((cpu.mmu.readVRAM(address + 1) & (0x80 >> logicalX)) >>
-                  (7 - logicalX)) <<
-              1);
+      int paletteUpper = (((cpu.mmu.readVRAM(address + 1) & (0x80 >> logicalX)) >> (7 - logicalX)) << 1);
       // lower bit of the color number
-      int paletteLower =
-          ((cpu.mmu.readVRAM(address) & (0x80 >> logicalX)) >> (7 - logicalX));
+      int paletteLower = ((cpu.mmu.readVRAM(address) & (0x80 >> logicalX)) >> (7 - logicalX));
 
       int paletteIndex = paletteUpper | paletteLower;
-      int priority =
-          (basePriority == 0)
-              ? (paletteIndex == 0 ? PPU.P_1 : PPU.P_3)
-              : basePriority;
+      int priority = (basePriority == 0) ? (paletteIndex == 0 ? PPU.P_1 : PPU.P_3) : basePriority;
 
       if (sprite && paletteIndex == 0) {
         continue;
@@ -595,11 +507,7 @@ class PPU {
     bool isColorGB = cpu.cartridge.gameboyType == GameboyType.COLOR;
 
     // Actual GameBoy hardware can only handle drawing 10 sprites per line
-    for (
-      int i = 0;
-      i < cpu.mmu.oam.length && spritesDrawnPerLine[scanline] < 10;
-      i += 4
-    ) {
+    for (int i = 0; i < cpu.mmu.oam.length && spritesDrawnPerLine[scanline] < 10; i += 4) {
       // Specifies the sprites vertical position on the screen (minus 16). An offscreen value (for example, Y=0 or Y>=160) hides the sprite.
       int y = cpu.mmu.readOAM(i) & 0xff;
 
@@ -624,10 +532,7 @@ class PPU {
       bool flipY = (attributes & 0x40) != 0;
 
       // Palette selection
-      Palette pal =
-          spritePalettes[isColorGB
-              ? (attributes & 0x7)
-              : ((attributes >> 4) & 0x1)];
+      Palette pal = spritePalettes[isColorGB ? (attributes & 0x7) : ((attributes >> 4) & 0x1)];
 
       // Handle drawing double sprites
       if (tall) {
@@ -636,52 +541,16 @@ class PPU {
         int lo = flipY ? (tile & 0xFE) : (tile | 0x01);
 
         if (y - 16 <= scanline && scanline < y - 8) {
-          drawTile(
-            pal,
-            data,
-            x - 8,
-            y - 16,
-            hi,
-            scanline,
-            flipX,
-            flipY,
-            vrambank,
-            priority,
-            true,
-          );
+          drawTile(pal, data, x - 8, y - 16, hi, scanline, flipX, flipY, vrambank, priority, true);
           spritesDrawnPerLine[scanline]++;
         }
 
         if (y - 8 <= scanline && scanline < y) {
-          drawTile(
-            pal,
-            data,
-            x - 8,
-            y - 8,
-            lo,
-            scanline,
-            flipX,
-            flipY,
-            vrambank,
-            priority,
-            true,
-          );
+          drawTile(pal, data, x - 8, y - 8, lo, scanline, flipX, flipY, vrambank, priority, true);
           spritesDrawnPerLine[scanline]++;
         }
       } else {
-        drawTile(
-          pal,
-          data,
-          x - 8,
-          y - 16,
-          tile,
-          scanline,
-          flipX,
-          flipY,
-          vrambank,
-          priority,
-          true,
-        );
+        drawTile(pal, data, x - 8, y - 16, tile, scanline, flipX, flipY, vrambank, priority, true);
         spritesDrawnPerLine[scanline]++;
       }
     }
@@ -691,27 +560,21 @@ class PPU {
   ///
   /// @return The enabled state.
   bool displayEnabled() {
-    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_CONTROL_OPERATION_BIT) !=
-        0;
+    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_CONTROL_OPERATION_BIT) != 0;
   }
 
   /// Determines whether the background layer is enabled from the LCDC register.
   ///
   /// @return The enabled state.
   bool backgroundEnabled() {
-    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_BGWINDOW_DISPLAY_BIT) !=
-        0;
+    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_BGWINDOW_DISPLAY_BIT) != 0;
   }
 
   /// Determines the window tile map offset from the LCDC register.
   ///
   /// @return The offset.
   int getWindowTileMapOffset() {
-    if ((cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_WINDOW_TILE_MAP_DISPLAY_SELECT_BIT) !=
-        0) {
+    if ((cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_WINDOW_TILE_MAP_DISPLAY_SELECT_BIT) != 0) {
       return 0x1c00;
     }
 
@@ -722,9 +585,7 @@ class PPU {
   ///
   /// @return The offset.
   int getBackgroundTileMapOffset() {
-    if ((cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_BG_TILE_MAP_DISPLAY_SELECT_BIT) !=
-        0) {
+    if ((cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_BG_TILE_MAP_DISPLAY_SELECT_BIT) != 0) {
       return 0x1c00;
     }
 
@@ -735,27 +596,21 @@ class PPU {
   ///
   /// @return The enabled state.
   bool isUsingTallSprites() {
-    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_SPRITE_SIZE_BIT) !=
-        0;
+    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_SPRITE_SIZE_BIT) != 0;
   }
 
   /// Determines whether sprites are enabled from the LCDC register.
   ///
   /// @return The enabled state.
   bool spritesEnabled() {
-    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_SPRITE_DISPLAY_BIT) !=
-        0;
+    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_SPRITE_DISPLAY_BIT) != 0;
   }
 
   /// Determines whether the window is enabled from the LCDC register.
   ///
   /// @return The enabled state.
   bool windowEnabled() {
-    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_WINDOW_DISPLAY_BIT) !=
-        0;
+    return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_WINDOW_DISPLAY_BIT) != 0;
   }
 
   /// Tile patterns are taken from the Tile Data Table located either at $8000-8FFF or $8800-97FF.
@@ -764,9 +619,7 @@ class PPU {
   ///
   /// The Tile Data Table address for the background can be selected via LCDC register.
   int getTileDataOffset() {
-    if ((cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) &
-            MemoryRegisters.LCDC_BGWINDOW_TILE_DATA_SELECT_BIT) !=
-        0) {
+    if ((cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_BGWINDOW_TILE_DATA_SELECT_BIT) != 0) {
       return 0x0;
     }
 

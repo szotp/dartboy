@@ -1,6 +1,7 @@
 import 'dart:typed_data' show Float32List;
 import 'dart:ui';
 
+import 'package:dartboy/emulator/emulator.dart';
 import 'package:flutter/material.dart';
 
 import '../emulator/graphics/ppu.dart';
@@ -19,11 +20,7 @@ class LCDWidget extends StatefulWidget {
 class LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      isComplex: true,
-      willChange: true,
-      painter: LCDPainter(),
-    );
+    return CustomPaint(isComplex: true, willChange: true, painter: LCDPainter());
   }
 }
 
@@ -42,26 +39,23 @@ class LCDPainter extends CustomPainter {
     int width = PPU.LCD_WIDTH * scale;
     int height = PPU.LCD_HEIGHT * scale;
 
+    if (MainScreen.emulator.state != EmulatorState.RUNNING) {
+      return;
+    }
+
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         Paint color = Paint();
         color.style = PaintingStyle.stroke;
         color.strokeWidth = 1.0;
 
-        color.color = ColorConverter.toColor(
-          MainScreen.emulator.cpu.ppu.current[(x ~/ scale) +
-              (y ~/ scale) * PPU.LCD_WIDTH],
-        );
+        color.color = ColorConverter.toColor(MainScreen.emulator.cpu.ppu.current[(x ~/ scale) + (y ~/ scale) * PPU.LCD_WIDTH]);
 
-        List<double> points = List<double>.empty();
+        List<double> points = List<double>.empty(growable: true);
         points.add(x.toDouble() - width / 2.0);
         points.add(y.toDouble() + 10);
 
-        canvas.drawRawPoints(
-          PointMode.points,
-          Float32List.fromList(points),
-          color,
-        );
+        canvas.drawRawPoints(PointMode.points, Float32List.fromList(points), color);
       }
     }
 

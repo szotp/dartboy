@@ -260,24 +260,19 @@ class MainScreenState extends State<MainScreen> {
                         child: Text('Step', style: const TextStyle(color: Colors.white)),
                       ),
                       MaterialButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (MainScreen.emulator.state != EmulatorState.WAITING) {
                             Modal.alert(context, 'Error', 'There is a ROM already loaded. Reset before loading new ROM.');
                             return;
                           }
 
-                          FilePicker.platform.pickFiles(dialogTitle: 'Choose ROM').then((FilePickerResult? result) {
-                            if (result == null) {
-                              return;
-                            }
-                            print(result);
+                          final result = await FilePicker.platform.pickFiles(dialogTitle: 'Choose ROM', withData: true);
 
-                            MainScreen.emulator.loadROM(result.files.single.bytes!);
-                          });
-
-                          if (MainScreen.emulator.state == EmulatorState.READY) {
-                            Modal.alert(context, 'Success', 'ROM loaded, ready to play.');
+                          if (result == null) {
+                            return;
                           }
+
+                          MainScreen.emulator.loadROM(result.files.single.bytes!);
                         },
                         color: Colors.black,
                         child: Text("Load", style: const TextStyle(color: Colors.white)),
