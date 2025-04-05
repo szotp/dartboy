@@ -9,6 +9,8 @@ environment:
   sdk: ^3.7.2
 
 dependencies:
+  emulator:
+    path: "./emulator"
   flutter:
     sdk: flutter
   #wave_generator: ^0.1.0

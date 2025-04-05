@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import './configuration.dart';
-import './cpu/cpu.dart';
-import './memory/cartridge.dart';
+import 'configuration.dart';
+import 'cpu/cpu.dart';
+import 'memory/cartridge.dart';
 
 /// Represents the state of the emulator.
 ///
@@ -60,7 +60,7 @@ class Emulator {
 
   /// Reset the emulator, stop running the code and unload the cartridge
   void reset() {
-    //this.cpu = null;
+    cpu = null;
     state = EmulatorState.WAITING;
   }
 

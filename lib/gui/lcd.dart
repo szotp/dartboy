@@ -1,10 +1,10 @@
 import 'dart:typed_data' show Float32List;
 import 'dart:ui';
 
-import 'package:dartboy/emulator/emulator.dart';
+import 'package:emulator/emulator.dart';
+import 'package:emulator/graphics/ppu.dart';
 import 'package:flutter/material.dart';
 
-import '../emulator/graphics/ppu.dart';
 import '../utils/color_converter.dart';
 
 class LCDWidget extends StatefulWidget {
@@ -13,11 +13,11 @@ class LCDWidget extends StatefulWidget {
 
   @override
   State<LCDWidget> createState() {
-    return LCDState();
+    return _LCDState();
   }
 }
 
-class LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
+class _LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final ppu = widget.emulator.cpu?.ppu;
@@ -26,7 +26,23 @@ class LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
       return SizedBox(child: Placeholder());
     }
 
-    return CustomPaint(isComplex: true, willChange: true, painter: LCDPainter(ppu));
+    return Container(
+      color: Colors.grey[800],
+      child: Center(
+        child: Transform.scale(
+          scale: 3,
+          child: CustomPaint(isComplex: true, willChange: true, painter: LCDPainter(ppu), size: Size(PPU.LCD_WIDTH.toDouble(), PPU.LCD_HEIGHT.toDouble())),
+        ),
+      ),
+    );
+  }
+}
+
+class PPUListenable extends ChangeNotifier {
+  final PPU ppu;
+
+  PPUListenable(this.ppu) {
+    ppu.notifyListeners = notifyListeners;
   }
 }
 
@@ -34,18 +50,12 @@ class LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
 class LCDPainter extends CustomPainter {
   final PPU ppu;
 
-  /// Indicates if the LCD is drawing new content
-  bool drawing = false;
-
-  LCDPainter(this.ppu) : super(repaint: ppu);
+  LCDPainter(this.ppu) : super(repaint: PPUListenable(ppu));
 
   @override
   void paint(Canvas canvas, Size size) {
-    drawing = true;
-
-    int scale = 1;
-    int width = PPU.LCD_WIDTH * scale;
-    int height = PPU.LCD_HEIGHT * scale;
+    int width = PPU.LCD_WIDTH;
+    int height = PPU.LCD_HEIGHT;
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
@@ -53,21 +63,19 @@ class LCDPainter extends CustomPainter {
         color.style = PaintingStyle.stroke;
         color.strokeWidth = 1.0;
 
-        color.color = ColorConverter.toColor(ppu.current[(x ~/ scale) + (y ~/ scale) * PPU.LCD_WIDTH]);
+        color.color = ColorConverter.toColor(ppu.current[x + y * PPU.LCD_WIDTH]);
 
         List<double> points = List<double>.empty(growable: true);
-        points.add(x.toDouble() - width / 2.0);
-        points.add(y.toDouble() + 10);
+        points.add(x.toDouble());
+        points.add(y.toDouble());
 
         canvas.drawRawPoints(PointMode.points, Float32List.fromList(points), color);
       }
     }
-
-    drawing = false;
   }
 
   @override
   bool shouldRepaint(LCDPainter oldDelegate) {
-    return !drawing;
+    return true;
   }
 }

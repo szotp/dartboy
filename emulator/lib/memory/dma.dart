@@ -1,5 +1,5 @@
-import './memory.dart';
-import './memory_registers.dart';
+import 'memory.dart';
+import 'memory_registers.dart';
 
 /// Represents a H-Blank DMA (direct memory access) transfer session.
 ///
@@ -40,11 +40,7 @@ class DMA {
   /// In that case reading from 0xFF55 may return any value for the lower 7 bits, but Bit 7 will be read as 1.
   void tick() {
     for (int i = 0; i < 0x10; i++) {
-      memory.vram[memory.vramPageStart +
-              destination +
-              position +
-              i] =
-          memory.readByte(source + i) & 0xFF;
+      memory.vram[memory.vramPageStart + destination + position + i] = memory.readByte(source + i) & 0xFF;
     }
 
     position += 0x10;

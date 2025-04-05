@@ -1,9 +1,9 @@
+import 'package:emulator/emulator.dart';
+import 'package:emulator/memory/gamepad.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../emulator/emulator.dart';
-import '../emulator/memory/gamepad.dart';
 import './Modal.dart';
 import './button.dart';
 import './lcd.dart';
@@ -15,7 +15,6 @@ class MainScreen extends StatefulWidget {
 
   final String title;
 
-  static bool keyboardHandlerCreated = false;
   @override
   MainScreenState createState() {
     return MainScreenState();

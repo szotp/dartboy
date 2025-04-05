@@ -3,11 +3,11 @@ import 'dart:typed_data';
 
 import '../configuration.dart';
 import '../cpu/cpu.dart';
-import './cartridge.dart';
-import './dma.dart';
-import './gamepad.dart';
-import './memory_addresses.dart';
-import './memory_registers.dart';
+import 'cartridge.dart';
+import 'dma.dart';
+import 'gamepad.dart';
+import 'memory_addresses.dart';
+import 'memory_registers.dart';
 
 /// Generic memory container used to represent memory spaces in the gameboy system.
 ///
@@ -81,16 +81,10 @@ class Memory {
     oam = Uint8List(0xA0);
     oam.fillRange(0, oam.length, 0);
 
-    wram = Uint8List(
-      Memory.WRAM_PAGESIZE *
-          (cpu.cartridge.gameboyType == GameboyType.COLOR ? 8 : 2),
-    );
+    wram = Uint8List(Memory.WRAM_PAGESIZE * (cpu.cartridge.gameboyType == GameboyType.COLOR ? 8 : 2));
     wram.fillRange(0, wram.length, 0);
 
-    vram = Uint8List(
-      Memory.VRAM_PAGESIZE *
-          (cpu.cartridge.gameboyType == GameboyType.COLOR ? 2 : 1),
-    );
+    vram = Uint8List(Memory.VRAM_PAGESIZE * (cpu.cartridge.gameboyType == GameboyType.COLOR ? 2 : 1));
     vram.fillRange(0, vram.length, 0);
 
     writeIO(0x04, 0xAB);
@@ -128,9 +122,7 @@ class Memory {
     address &= 0xFFFF;
 
     if (value > 0xFF) {
-      throw Exception(
-        'Tring to write ${value.toRadixString(16)} (>0xFF) into ${address.toRadixString(16)}.',
-      );
+      throw Exception('Tring to write ${value.toRadixString(16)} (>0xFF) into ${address.toRadixString(16)}.');
     }
 
     // ROM
@@ -138,37 +130,29 @@ class Memory {
       return;
     }
     // VRAM
-    else if (address >= MemoryAddresses.VIDEO_RAM_START &&
-        address < MemoryAddresses.VIDEO_RAM_END) {
+    else if (address >= MemoryAddresses.VIDEO_RAM_START && address < MemoryAddresses.VIDEO_RAM_END) {
       vram[vramPageStart + address - MemoryAddresses.VIDEO_RAM_START] = value;
     }
     // Cartridge RAM
-    else if (address >= MemoryAddresses.SWITCHABLE_RAM_START &&
-        address < MemoryAddresses.SWITCHABLE_RAM_END) {
+    else if (address >= MemoryAddresses.SWITCHABLE_RAM_START && address < MemoryAddresses.SWITCHABLE_RAM_END) {
       return;
     }
     // RAM A
-    else if (address >= MemoryAddresses.RAM_A_START &&
-        address < MemoryAddresses.RAM_A_SWITCHABLE_START) {
+    else if (address >= MemoryAddresses.RAM_A_START && address < MemoryAddresses.RAM_A_SWITCHABLE_START) {
       wram[address - MemoryAddresses.RAM_A_START] = value;
-    } else if (address >= MemoryAddresses.RAM_A_SWITCHABLE_START &&
-        address < MemoryAddresses.RAM_A_END) {
-      wram[address - MemoryAddresses.RAM_A_SWITCHABLE_START + wramPageStart] =
-          value;
+    } else if (address >= MemoryAddresses.RAM_A_SWITCHABLE_START && address < MemoryAddresses.RAM_A_END) {
+      wram[address - MemoryAddresses.RAM_A_SWITCHABLE_START + wramPageStart] = value;
     }
     // RAM echo
-    else if (address >= MemoryAddresses.RAM_A_ECHO_START &&
-        address < MemoryAddresses.RAM_A_ECHO_END) {
+    else if (address >= MemoryAddresses.RAM_A_ECHO_START && address < MemoryAddresses.RAM_A_ECHO_END) {
       writeByte(address - MemoryAddresses.RAM_A_ECHO_START, value);
     }
     // Empty
-    else if (address >= MemoryAddresses.EMPTY_A_START &&
-        address < MemoryAddresses.EMPTY_A_END) {
+    else if (address >= MemoryAddresses.EMPTY_A_START && address < MemoryAddresses.EMPTY_A_END) {
       return;
     }
     // OAM
-    else if (address >= MemoryAddresses.OAM_START &&
-        address < MemoryAddresses.EMPTY_A_END) {
+    else if (address >= MemoryAddresses.OAM_START && address < MemoryAddresses.EMPTY_A_END) {
       oam[address - MemoryAddresses.OAM_START] = value;
     }
     // IO
@@ -187,45 +171,33 @@ class Memory {
     if (address < MemoryAddresses.CARTRIDGE_ROM_SWITCHABLE_START) {
       return cpu.cartridge.data[address];
     }
-    if (address >= MemoryAddresses.CARTRIDGE_ROM_SWITCHABLE_START &&
-        address < MemoryAddresses.CARTRIDGE_ROM_END) {
-      return cpu.cartridge.data[romPageStart +
-          address -
-          MemoryAddresses.CARTRIDGE_ROM_SWITCHABLE_START];
+    if (address >= MemoryAddresses.CARTRIDGE_ROM_SWITCHABLE_START && address < MemoryAddresses.CARTRIDGE_ROM_END) {
+      return cpu.cartridge.data[romPageStart + address - MemoryAddresses.CARTRIDGE_ROM_SWITCHABLE_START];
     }
     // VRAM
-    else if (address >= MemoryAddresses.VIDEO_RAM_START &&
-        address < MemoryAddresses.VIDEO_RAM_END) {
+    else if (address >= MemoryAddresses.VIDEO_RAM_START && address < MemoryAddresses.VIDEO_RAM_END) {
       return vram[vramPageStart + address - MemoryAddresses.VIDEO_RAM_START];
     }
     // Cartridge RAM
-    else if (address >= MemoryAddresses.SWITCHABLE_RAM_START &&
-        address < MemoryAddresses.SWITCHABLE_RAM_END) {
+    else if (address >= MemoryAddresses.SWITCHABLE_RAM_START && address < MemoryAddresses.SWITCHABLE_RAM_END) {
       return 0x0;
     }
     // RAM A
-    else if (address >= MemoryAddresses.RAM_A_START &&
-        address < MemoryAddresses.RAM_A_SWITCHABLE_START) {
+    else if (address >= MemoryAddresses.RAM_A_START && address < MemoryAddresses.RAM_A_SWITCHABLE_START) {
       return wram[address - MemoryAddresses.RAM_A_START];
-    } else if (address >= MemoryAddresses.RAM_A_SWITCHABLE_START &&
-        address < MemoryAddresses.RAM_A_END) {
-      return wram[wramPageStart +
-          address -
-          MemoryAddresses.RAM_A_SWITCHABLE_START];
+    } else if (address >= MemoryAddresses.RAM_A_SWITCHABLE_START && address < MemoryAddresses.RAM_A_END) {
+      return wram[wramPageStart + address - MemoryAddresses.RAM_A_SWITCHABLE_START];
     }
     // RAM echo
-    else if (address >= MemoryAddresses.RAM_A_ECHO_START &&
-        address < MemoryAddresses.RAM_A_ECHO_END) {
+    else if (address >= MemoryAddresses.RAM_A_ECHO_START && address < MemoryAddresses.RAM_A_ECHO_END) {
       return readByte(address - MemoryAddresses.RAM_A_ECHO_START);
     }
     // Empty A
-    else if (address >= MemoryAddresses.EMPTY_A_START &&
-        address < MemoryAddresses.EMPTY_A_END) {
+    else if (address >= MemoryAddresses.EMPTY_A_START && address < MemoryAddresses.EMPTY_A_END) {
       return 0xFF;
     }
     // OAM
-    else if (address >= MemoryAddresses.OAM_START &&
-        address < MemoryAddresses.EMPTY_A_END) {
+    else if (address >= MemoryAddresses.OAM_START && address < MemoryAddresses.EMPTY_A_END) {
       return oam[address - MemoryAddresses.OAM_START];
     }
     // IO
@@ -239,14 +211,10 @@ class Memory {
   /// Write data into the IO section of memory space.
   void writeIO(int address, int value) {
     if (value > 0xFF) {
-      throw Exception(
-        'Tring to write ${value.toRadixString(16)} (>0xFF) into ${address.toRadixString(16)}.',
-      );
+      throw Exception('Tring to write ${value.toRadixString(16)} (>0xFF) into ${address.toRadixString(16)}.');
     }
     if (address > 0xFF) {
-      throw Exception(
-        'Tring to write register ${value.toRadixString(16)} into ${address.toRadixString(16)} (>0xFF).',
-      );
+      throw Exception('Tring to write register ${value.toRadixString(16)} into ${address.toRadixString(16)} (>0xFF).');
     }
 
     if (address == MemoryRegisters.DOUBLE_SPEED) {
@@ -262,8 +230,7 @@ class Memory {
         if ((index & 0x80) != 0) {
           currentRegister++;
           currentRegister %= 0x40;
-          registers[MemoryRegisters.BACKGROUND_PALETTE_INDEX] =
-              (0x80 | currentRegister) & 0xFF;
+          registers[MemoryRegisters.BACKGROUND_PALETTE_INDEX] = (0x80 | currentRegister) & 0xFF;
         }
       }
     }
@@ -277,8 +244,7 @@ class Memory {
         if ((index & 0x80) != 0) {
           currentRegister++;
           currentRegister %= 0x40;
-          registers[MemoryRegisters.SPRITE_PALETTE_INDEX] =
-              (0x80 | currentRegister) & 0xFF;
+          registers[MemoryRegisters.SPRITE_PALETTE_INDEX] = (0x80 | currentRegister) & 0xFF;
         }
       }
     }
@@ -290,8 +256,7 @@ class Memory {
         // Get the configuration of the H-DMA transfer
         int length = ((value & 0x7f) + 1) * 0x10;
         int source = ((registers[0x51] & 0xff) << 8) | (registers[0x52] & 0xF0);
-        int destination =
-            ((registers[0x53] & 0x1f) << 8) | (registers[0x54] & 0xF0);
+        int destination = ((registers[0x53] & 0x1f) << 8) | (registers[0x54] & 0xF0);
 
         // H-Blank DMA
         if ((value & 0x80) != 0) {
@@ -322,38 +287,28 @@ class Memory {
         //this.cpu.sound.channel1.restart();
         value &= 0x7f;
       }
-    } else if (address == MemoryRegisters.NR10 ||
-        address == MemoryRegisters.NR11 ||
-        address == MemoryRegisters.NR12 ||
-        address == MemoryRegisters.NR13) {
+    } else if (address == MemoryRegisters.NR10 || address == MemoryRegisters.NR11 || address == MemoryRegisters.NR12 || address == MemoryRegisters.NR13) {
       //this.cpu.sound.channel1.update();
     } else if (address == MemoryRegisters.NR24) {
       if ((value & 0x80) != 0) {
         //this.cpu.sound.channel2.restart();
         value &= 0x7F;
       }
-    } else if (address == MemoryRegisters.NR21 ||
-        address == MemoryRegisters.NR22 ||
-        address == MemoryRegisters.NR23) {
+    } else if (address == MemoryRegisters.NR21 || address == MemoryRegisters.NR22 || address == MemoryRegisters.NR23) {
       //this.cpu.sound.channel2.update();
     } else if (address == MemoryRegisters.NR34) {
       if ((value & 0x80) != 0) {
         //this.cpu.sound.channel3.restart();
         value &= 0x7F;
       }
-    } else if (address == MemoryRegisters.NR30 ||
-        address == MemoryRegisters.NR31 ||
-        address == MemoryRegisters.NR32 ||
-        address == MemoryRegisters.NR33) {
+    } else if (address == MemoryRegisters.NR30 || address == MemoryRegisters.NR31 || address == MemoryRegisters.NR32 || address == MemoryRegisters.NR33) {
       //this.cpu.sound.channel3.update();
     } else if (address == MemoryRegisters.NR44) {
       if ((value & 0x80) != 0) {
         //this.cpu.sound.channel4.restart();
         value &= 0x7F;
       }
-    } else if (address == MemoryRegisters.NR41 ||
-        address == MemoryRegisters.NR42 ||
-        address == MemoryRegisters.NR43) {
+    } else if (address == MemoryRegisters.NR41 || address == MemoryRegisters.NR42 || address == MemoryRegisters.NR43) {
       //this.cpu.sound.channel4.update();
     }
     // OAM DMA transfer
@@ -388,9 +343,7 @@ class Memory {
   /// Read IO address
   int readIO(int address) {
     if (address > 0xFF) {
-      throw Exception(
-        'Tring to read register from ${address.toRadixString(16)} (>0xFF).',
-      );
+      throw Exception('Tring to read register from ${address.toRadixString(16)} (>0xFF).');
     }
 
     if (address == MemoryRegisters.DOUBLE_SPEED) {

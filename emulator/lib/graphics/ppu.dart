@@ -1,24 +1,24 @@
-import 'package:flutter/foundation.dart';
-
 import '../configuration.dart';
 import '../cpu/cpu.dart';
 import '../memory/cartridge.dart';
 import '../memory/memory_addresses.dart';
 import '../memory/memory_registers.dart';
-import './palette.dart';
-import './palette_colors.dart';
+import 'palette.dart';
+import 'palette_colors.dart';
 
-typedef OnLineReady = void Function();
+typedef NotifyListeners = void Function();
 
 /// LCD class handles all the screen drawing tasks.
 ///
 /// Is responsible for managing the sprites and background layers.
-class PPU extends ChangeNotifier {
+class PPU {
   /// Width in pixels of the physical gameboy LCD.
   static const int LCD_WIDTH = 160;
 
   /// Height in pixels of the physical gameboy LCD.
   static const int LCD_HEIGHT = 144;
+
+  NotifyListeners? notifyListeners;
 
   /// Draw layer priority constants.
   ///
@@ -303,8 +303,7 @@ class PPU extends ChangeNotifier {
       buffer = current;
       current = temp;
 
-      // ignore: invalid_use_of_protected_member
-      notifyListeners();
+      notifyListeners?.call();
 
       //Clear drawing buffer
       buffer.fillRange(0, buffer.length, 0);

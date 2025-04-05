@@ -1,0 +1,4 @@
+name: emulator
+
+environment:
+  sdk: ^3.7.2

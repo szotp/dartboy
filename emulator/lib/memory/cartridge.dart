@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import '../cpu/cpu.dart';
-import './mmu/mbc1.dart';
-import './mmu/mbc2.dart';
-import './mmu/mbc3.dart';
-import './mmu/mbc5.dart';
-import './mmu/mmu.dart';
+import 'mmu/mbc1.dart';
+import 'mmu/mbc2.dart';
+import 'mmu/mbc3.dart';
+import 'mmu/mbc5.dart';
+import 'mmu/mmu.dart';
 
 /// Stores the cartridge information and data.
 ///
@@ -67,8 +67,7 @@ class Cartridge {
     name = String.fromCharCodes(readBytes(0x134, 0x142));
     romType = readByte(0x148);
     ramType = readByte(0x149);
-    gameboyType =
-        readByte(0x143) == 0x80 ? GameboyType.COLOR : GameboyType.CLASSIC;
+    gameboyType = readByte(0x143) == 0x80 ? GameboyType.COLOR : GameboyType.CLASSIC;
     superGameboy = readByte(0x146) == 0x3;
 
     // Calculate the special value used by the CGB boot ROM to colorize some monochrome games.
@@ -87,9 +86,7 @@ class Cartridge {
     if (type == CartridgeType.ROM) {
       print('Created basic MMU unit.');
       return MMU(cpu);
-    } else if (type == CartridgeType.MBC1 ||
-        type == CartridgeType.MBC1_RAM ||
-        type == CartridgeType.MBC1_RAM_BATT) {
+    } else if (type == CartridgeType.MBC1 || type == CartridgeType.MBC1_RAM || type == CartridgeType.MBC1_RAM_BATT) {
       print('Created MBC1 unit.');
       return MBC1(cpu);
     } else if (type == CartridgeType.MBC2 || type == CartridgeType.MBC2_BATT) {
