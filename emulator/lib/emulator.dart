@@ -12,6 +12,15 @@ import 'memory/cartridge.dart';
 /// When the game starts running it goes to RUNNING state, on pause it returns to READY.
 enum EmulatorState { WAITING, READY, RUNNING }
 
+const _frequency = CPU.FREQUENCY ~/ 4;
+const _periodCPU = 1e6 / _frequency;
+
+const _fps = 30;
+const _periodFPS = 1e6 ~/ _fps;
+
+const _cycles = _periodFPS ~/ _periodCPU;
+const Duration _period = Duration(microseconds: _periodFPS);
+
 /// Main emulator object used to directly interact with the system.
 ///
 /// GUI communicates with this object, it is responsible for providing image, handling key input and user interaction.
@@ -78,7 +87,7 @@ class Emulator {
   }
 
   /// Run the emulation all full speed.
-  void run() {
+  Future<void> run() async {
     if (state != EmulatorState.READY) {
       print('Emulator not ready, cannot run.');
       return;
@@ -86,38 +95,16 @@ class Emulator {
 
     state = EmulatorState.RUNNING;
 
-    int frequency = CPU.FREQUENCY ~/ 4;
-    double periodCPU = 1e6 / frequency;
-
-    int fps = 30;
-    double periodFPS = 1e6 / fps;
-
-    int cycles = periodFPS ~/ periodCPU;
-    Duration period = Duration(microseconds: periodFPS.toInt());
-
-    loop() async {
-      while (true) {
-        if (state != EmulatorState.RUNNING) {
-          print('Stopped emulation.');
-          return;
-        }
-
-        try {
-          for (var i = 0; i < cycles; i++) {
-            cpu?.step();
-          }
-        } catch (e, stacktrace) {
-          print('Error occured, emulation stoped.');
-          print(e.toString());
-          print(stacktrace.toString());
-          return;
-        }
-
-        await Future.delayed(period);
-      }
+    while (state == EmulatorState.RUNNING) {
+      stepFrame();
+      await Future.delayed(_period);
     }
+  }
 
-    loop();
+  void stepFrame() {
+    for (var i = 0; i < _cycles; i++) {
+      cpu!.step();
+    }
   }
 
   /// Pause the emulation

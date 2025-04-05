@@ -31,26 +31,26 @@ class _LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
       child: Center(
         child: Transform.scale(
           scale: 3,
-          child: CustomPaint(isComplex: true, willChange: true, painter: LCDPainter(ppu), size: Size(PPU.LCD_WIDTH.toDouble(), PPU.LCD_HEIGHT.toDouble())),
+          child: CustomPaint(isComplex: true, willChange: true, painter: _LCDPainter(ppu), size: Size(PPU.LCD_WIDTH.toDouble(), PPU.LCD_HEIGHT.toDouble())),
         ),
       ),
     );
   }
 }
 
-class PPUListenable extends ChangeNotifier {
+class _PPUListenable extends ChangeNotifier {
   final PPU ppu;
 
-  PPUListenable(this.ppu) {
+  _PPUListenable(this.ppu) {
     ppu.notifyListeners = notifyListeners;
   }
 }
 
 /// LCD painter is used to copy the LCD data from the gameboy PPU to the screen.
-class LCDPainter extends CustomPainter {
+class _LCDPainter extends CustomPainter {
   final PPU ppu;
 
-  LCDPainter(this.ppu) : super(repaint: PPUListenable(ppu));
+  _LCDPainter(this.ppu) : super(repaint: _PPUListenable(ppu));
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -75,7 +75,7 @@ class LCDPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(LCDPainter oldDelegate) {
+  bool shouldRepaint(_LCDPainter oldDelegate) {
     return true;
   }
 }

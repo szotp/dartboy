@@ -2,3 +2,8 @@ name: emulator
 
 environment:
   sdk: ^3.7.2
+
+dev_dependencies:
+  test: any
+  image: any
+  

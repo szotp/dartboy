@@ -8,7 +8,7 @@ import './Modal.dart';
 import './button.dart';
 import './lcd.dart';
 
-String? preload = "pokemon.gb";
+String? preload = "sprite_priority.gb";
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.title});
