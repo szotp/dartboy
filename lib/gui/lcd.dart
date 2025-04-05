@@ -6,20 +6,13 @@ import 'package:emulator/emulator.dart';
 import 'package:emulator/graphics/ppu.dart';
 import 'package:flutter/material.dart';
 
-class LCDWidget extends StatefulWidget {
+class EmulatorScreenWidget extends StatelessWidget {
   final Emulator emulator;
-  const LCDWidget({super.key, required this.emulator});
+  const EmulatorScreenWidget({super.key, required this.emulator});
 
-  @override
-  State<LCDWidget> createState() {
-    return _LCDState();
-  }
-}
-
-class _LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    final ppu = widget.emulator.cpu?.ppu;
+    final ppu = emulator.cpu?.ppu;
 
     if (ppu == null) {
       return const SizedBox(child: Placeholder());
@@ -27,11 +20,8 @@ class _LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
 
     return Container(
       color: Colors.grey[800],
-      child: Center(
-        child: Transform.scale(
-          scale: 3,
-          child: CustomPaint(isComplex: true, willChange: true, painter: _LCDPainter(ppu), size: Size(PPU.LCD_WIDTH.toDouble(), PPU.LCD_HEIGHT.toDouble())),
-        ),
+      child: FittedBox(
+        child: CustomPaint(isComplex: true, willChange: true, painter: _LCDPainter(ppu), size: Size(PPU.LCD_WIDTH.toDouble(), PPU.LCD_HEIGHT.toDouble())),
       ),
     );
   }

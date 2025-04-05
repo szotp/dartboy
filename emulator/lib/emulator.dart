@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:emulator/configuration.dart';
 import 'package:emulator/cpu/cpu.dart';
 import 'package:emulator/memory/cartridge.dart';
+import 'package:emulator/memory/gamepad.dart';
 
 /// Represents the state of the emulator.
 ///
@@ -32,13 +33,13 @@ class Emulator {
   CPU? cpu;
 
   /// Press a gamepad button down (update memory register).
-  void buttonDown(int button) {
-    cpu?.buttons[button] = true;
+  void setButtonDown(GamepadButton button) {
+    cpu?.buttons[button.index] = true;
   }
 
   /// Release a gamepad button (update memory register).
-  void buttonUp(int button) {
-    cpu?.buttons[button] = false;
+  void seButtonUp(GamepadButton button) {
+    cpu?.buttons[button.index] = false;
   }
 
   /// Load a ROM from a file and create the HW components for the emulator.

@@ -352,31 +352,31 @@ class Memory {
       reg |= 0x0F;
 
       if (reg & 0x10 == 0) {
-        if (cpu.buttons[Gamepad.RIGHT]) {
+        if (cpu.buttons[GamepadButton.RIGHT.index]) {
           reg &= ~0x1;
         }
-        if (cpu.buttons[Gamepad.LEFT]) {
+        if (cpu.buttons[GamepadButton.LEFT.index]) {
           reg &= ~0x2;
         }
-        if (cpu.buttons[Gamepad.UP]) {
+        if (cpu.buttons[GamepadButton.UP.index]) {
           reg &= ~0x4;
         }
-        if (cpu.buttons[Gamepad.DOWN]) {
+        if (cpu.buttons[GamepadButton.DOWN.index]) {
           reg &= ~0x8;
         }
       }
 
       if (reg & 0x20 == 0) {
-        if (cpu.buttons[Gamepad.A]) {
+        if (cpu.buttons[GamepadButton.A.index]) {
           reg &= ~0x1;
         }
-        if (cpu.buttons[Gamepad.B]) {
+        if (cpu.buttons[GamepadButton.B.index]) {
           reg &= ~0x2;
         }
-        if (cpu.buttons[Gamepad.SELECT]) {
+        if (cpu.buttons[GamepadButton.SELECT.index]) {
           reg &= ~0x4;
         }
-        if (cpu.buttons[Gamepad.START]) {
+        if (cpu.buttons[GamepadButton.START.index]) {
           reg &= ~0x8;
         }
       }
