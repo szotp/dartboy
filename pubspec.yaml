@@ -12,11 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   #wave_generator: ^0.1.0
-  audioplayers: ^0.20.1
-  file_picker: ^4.2.8
-  image: ^3.1.0
-
-  flutter_web_plugins: any
+  audioplayers: any
+  file_picker: any
+  image: any
 dev_dependencies:
   flutter_lints: any
   flutter_test:
