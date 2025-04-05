@@ -8,7 +8,7 @@ import '../utils/color_converter.dart';
 import './main_screen.dart';
 
 class LCDWidget extends StatefulWidget {
-  LCDWidget({Key? key}) : super(key: key);
+  const LCDWidget({super.key});
 
   @override
   State<LCDWidget> createState() {
@@ -19,7 +19,11 @@ class LCDWidget extends StatefulWidget {
 class LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return new CustomPaint(isComplex: true, willChange: true, painter: new LCDPainter());
+    return CustomPaint(
+      isComplex: true,
+      willChange: true,
+      painter: LCDPainter(),
+    );
   }
 }
 
@@ -32,7 +36,7 @@ class LCDPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    this.drawing = true;
+    drawing = true;
 
     int scale = 1;
     int width = PPU.LCD_WIDTH * scale;
@@ -40,25 +44,32 @@ class LCDPainter extends CustomPainter {
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
-        Paint color = new Paint();
+        Paint color = Paint();
         color.style = PaintingStyle.stroke;
         color.strokeWidth = 1.0;
 
-        color.color = ColorConverter.toColor(MainScreen.emulator.cpu.ppu.current[(x ~/ scale) + (y ~/ scale) * PPU.LCD_WIDTH]);
+        color.color = ColorConverter.toColor(
+          MainScreen.emulator.cpu.ppu.current[(x ~/ scale) +
+              (y ~/ scale) * PPU.LCD_WIDTH],
+        );
 
-        List<double> points = new List<double>.empty();
+        List<double> points = List<double>.empty();
         points.add(x.toDouble() - width / 2.0);
         points.add(y.toDouble() + 10);
 
-        canvas.drawRawPoints(PointMode.points, new Float32List.fromList(points), color);
+        canvas.drawRawPoints(
+          PointMode.points,
+          Float32List.fromList(points),
+          color,
+        );
       }
     }
 
-    this.drawing = false;
+    drawing = false;
   }
 
   @override
   bool shouldRepaint(LCDPainter oldDelegate) {
-    return !this.drawing;
+    return !drawing;
   }
 }

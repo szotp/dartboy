@@ -10,19 +10,19 @@ import './button.dart';
 import './lcd.dart';
 
 class MainScreen extends StatefulWidget {
-  MainScreen({Key? key, required this.title}) : super(key: key);
+  const MainScreen({super.key, required this.title});
 
   final String title;
 
   /// Emulator instance
-  static Emulator emulator = new Emulator();
+  static Emulator emulator = Emulator();
 
-  static LCDState lcdState = new LCDState();
+  static LCDState lcdState = LCDState();
 
   static bool keyboardHandlerCreated = false;
   @override
   MainScreenState createState() {
-    return new MainScreenState();
+    return MainScreenState();
   }
 }
 
@@ -60,7 +60,7 @@ class MainScreenState extends State<MainScreen> {
         String keyPress = key.data.toString();
 
         String value = keyPress.substring(keyPress.indexOf('keyCode: ') + 9, keyPress.indexOf(', scanCode:'));
-        if (value.length == 0) {
+        if (value.isEmpty) {
           return;
         }
 
@@ -91,239 +91,231 @@ class MainScreenState extends State<MainScreen> {
       });
     }
 
-    return new Scaffold(
+    return Scaffold(
       backgroundColor: Colors.black,
-      body: new Container(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            // LCD
-            new Expanded(child: new LCDWidget()),
-            new Expanded(
-              child: new Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  // Buttons (DPAD + AB)
-                  new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      // DPAD
-                      new Column(
-                        children: <Widget>[
-                          new Button(
-                            color: Colors.blueAccent,
-                            onPressed: () {
-                              MainScreen.emulator.buttonDown(Gamepad.UP);
-                            },
-                            onReleased: () {
-                              MainScreen.emulator.buttonUp(Gamepad.UP);
-                            },
-                            label: "Up",
-                          ),
-                          new Row(
-                            children: <Widget>[
-                              new Button(
-                                color: Colors.blueAccent,
-                                onPressed: () {
-                                  MainScreen.emulator.buttonDown(Gamepad.LEFT);
-                                },
-                                onReleased: () {
-                                  MainScreen.emulator.buttonUp(Gamepad.LEFT);
-                                },
-                                label: "Left",
-                              ),
-                              new Container(width: 50, height: 50),
-                              new Button(
-                                color: Colors.blueAccent,
-                                onPressed: () {
-                                  MainScreen.emulator.buttonDown(Gamepad.RIGHT);
-                                },
-                                onReleased: () {
-                                  MainScreen.emulator.buttonUp(Gamepad.RIGHT);
-                                },
-                                label: "Right",
-                              ),
-                            ],
-                          ),
-                          new Button(
-                            color: Colors.blueAccent,
-                            onPressed: () {
-                              MainScreen.emulator.buttonDown(Gamepad.DOWN);
-                            },
-                            onReleased: () {
-                              MainScreen.emulator.buttonUp(Gamepad.DOWN);
-                            },
-                            label: "Down",
-                          ),
-                        ],
-                      ),
-                      // AB
-                      new Column(
-                        children: <Widget>[
-                          new Button(
-                            color: Colors.red,
-                            onPressed: () {
-                              MainScreen.emulator.buttonDown(Gamepad.A);
-                            },
-                            onReleased: () {
-                              MainScreen.emulator.buttonUp(Gamepad.A);
-                            },
-                            label: "A",
-                          ),
-                          new Button(
-                            color: Colors.green,
-                            onPressed: () {
-                              MainScreen.emulator.buttonDown(Gamepad.B);
-                            },
-                            onReleased: () {
-                              MainScreen.emulator.buttonUp(Gamepad.B);
-                            },
-                            label: "B",
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  // Button (SELECT + START)
-                  new Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      new Button(
-                        color: Colors.orange,
-                        onPressed: () {
-                          MainScreen.emulator.buttonDown(Gamepad.START);
-                        },
-                        onReleased: () {
-                          MainScreen.emulator.buttonUp(Gamepad.START);
-                        },
-                        labelColor: Colors.black,
-                        label: "Start",
-                      ),
-                      new Container(width: 20),
-                      new Button(
-                        color: Colors.yellowAccent,
-                        onPressed: () {
-                          MainScreen.emulator.buttonDown(Gamepad.SELECT);
-                        },
-                        onReleased: () {
-                          MainScreen.emulator.buttonUp(Gamepad.SELECT);
-                        },
-                        labelColor: Colors.black,
-                        label: "Select",
-                      ),
-                    ],
-                  ),
-                  // Button (Start + Pause + Load)
-                  new Expanded(
-                    child: new ListView(
-                      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                      scrollDirection: Axis.horizontal,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          // LCD
+          Expanded(child: LCDWidget()),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                // Buttons (DPAD + AB)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    // DPAD
+                    Column(
                       children: <Widget>[
-                        new MaterialButton(
+                        Button(
+                          color: Colors.blueAccent,
                           onPressed: () {
-                            if (MainScreen.emulator.state != EmulatorState.READY) {
-                              Modal.alert(context, 'Error', 'Not ready to run. Load ROM first.');
-                              return;
-                            }
-                            MainScreen.emulator.run();
+                            MainScreen.emulator.buttonDown(Gamepad.UP);
                           },
-                          color: Colors.black,
-                          child: new Text('Run', style: const TextStyle(color: Colors.white)),
+                          onReleased: () {
+                            MainScreen.emulator.buttonUp(Gamepad.UP);
+                          },
+                          label: "Up",
                         ),
-                        new MaterialButton(
-                          onPressed: () {
-                            if (MainScreen.emulator.state != EmulatorState.RUNNING) {
-                              Modal.alert(context, 'Error', 'Not running cant be paused.');
-                              return;
-                            }
-
-                            MainScreen.emulator.pause();
-                          },
-                          color: Colors.black,
-                          child: new Text('Pause', style: const TextStyle(color: Colors.white)),
+                        Row(
+                          children: <Widget>[
+                            Button(
+                              color: Colors.blueAccent,
+                              onPressed: () {
+                                MainScreen.emulator.buttonDown(Gamepad.LEFT);
+                              },
+                              onReleased: () {
+                                MainScreen.emulator.buttonUp(Gamepad.LEFT);
+                              },
+                              label: "Left",
+                            ),
+                            SizedBox(width: 50, height: 50),
+                            Button(
+                              color: Colors.blueAccent,
+                              onPressed: () {
+                                MainScreen.emulator.buttonDown(Gamepad.RIGHT);
+                              },
+                              onReleased: () {
+                                MainScreen.emulator.buttonUp(Gamepad.RIGHT);
+                              },
+                              label: "Right",
+                            ),
+                          ],
                         ),
-                        new MaterialButton(
+                        Button(
+                          color: Colors.blueAccent,
                           onPressed: () {
-                            MainScreen.emulator.reset();
+                            MainScreen.emulator.buttonDown(Gamepad.DOWN);
                           },
-                          color: Colors.black,
-                          child: new Text('Reset', style: const TextStyle(color: Colors.white)),
-                        ),
-                        new MaterialButton(
-                          onPressed: () {
-                            MainScreen.emulator.debugStep();
+                          onReleased: () {
+                            MainScreen.emulator.buttonUp(Gamepad.DOWN);
                           },
-                          color: Colors.black,
-                          child: new Text('Step', style: const TextStyle(color: Colors.white)),
-                        ),
-                        new MaterialButton(
-                          onPressed: () {
-                            if (MainScreen.emulator.state != EmulatorState.WAITING) {
-                              Modal.alert(context, 'Error', 'There is a ROM already loaded. Reset before loading new ROM.');
-                              return;
-                            }
-
-                            FilePicker.platform.pickFiles(dialogTitle: 'Choose ROM').then((FilePickerResult? result) {
-                              if (result == null) {
-                                return;
-                              }
-                              print(result);
-
-                              MainScreen.emulator.loadROM(result.files.single.bytes!);
-                            });
-
-                            if (MainScreen.emulator.state == EmulatorState.READY) {
-                              Modal.alert(context, 'Success', 'ROM loaded, ready to play.');
-                            }
-                          },
-                          color: Colors.black,
-                          child: new Text("Load", style: const TextStyle(color: Colors.white)),
+                          label: "Down",
                         ),
                       ],
                     ),
+                    // AB
+                    Column(
+                      children: <Widget>[
+                        Button(
+                          color: Colors.red,
+                          onPressed: () {
+                            MainScreen.emulator.buttonDown(Gamepad.A);
+                          },
+                          onReleased: () {
+                            MainScreen.emulator.buttonUp(Gamepad.A);
+                          },
+                          label: "A",
+                        ),
+                        Button(
+                          color: Colors.green,
+                          onPressed: () {
+                            MainScreen.emulator.buttonDown(Gamepad.B);
+                          },
+                          onReleased: () {
+                            MainScreen.emulator.buttonUp(Gamepad.B);
+                          },
+                          label: "B",
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                // Button (SELECT + START)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Button(
+                      color: Colors.orange,
+                      onPressed: () {
+                        MainScreen.emulator.buttonDown(Gamepad.START);
+                      },
+                      onReleased: () {
+                        MainScreen.emulator.buttonUp(Gamepad.START);
+                      },
+                      labelColor: Colors.black,
+                      label: "Start",
+                    ),
+                    Container(width: 20),
+                    Button(
+                      color: Colors.yellowAccent,
+                      onPressed: () {
+                        MainScreen.emulator.buttonDown(Gamepad.SELECT);
+                      },
+                      onReleased: () {
+                        MainScreen.emulator.buttonUp(Gamepad.SELECT);
+                      },
+                      labelColor: Colors.black,
+                      label: "Select",
+                    ),
+                  ],
+                ),
+                // Button (Start + Pause + Load)
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                    scrollDirection: Axis.horizontal,
+                    children: <Widget>[
+                      MaterialButton(
+                        onPressed: () {
+                          if (MainScreen.emulator.state != EmulatorState.READY) {
+                            Modal.alert(context, 'Error', 'Not ready to run. Load ROM first.');
+                            return;
+                          }
+                          MainScreen.emulator.run();
+                        },
+                        color: Colors.black,
+                        child: Text('Run', style: const TextStyle(color: Colors.white)),
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          if (MainScreen.emulator.state != EmulatorState.RUNNING) {
+                            Modal.alert(context, 'Error', 'Not running cant be paused.');
+                            return;
+                          }
+
+                          MainScreen.emulator.pause();
+                        },
+                        color: Colors.black,
+                        child: Text('Pause', style: const TextStyle(color: Colors.white)),
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          MainScreen.emulator.reset();
+                        },
+                        color: Colors.black,
+                        child: Text('Reset', style: const TextStyle(color: Colors.white)),
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          MainScreen.emulator.debugStep();
+                        },
+                        color: Colors.black,
+                        child: Text('Step', style: const TextStyle(color: Colors.white)),
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          if (MainScreen.emulator.state != EmulatorState.WAITING) {
+                            Modal.alert(context, 'Error', 'There is a ROM already loaded. Reset before loading new ROM.');
+                            return;
+                          }
+
+                          FilePicker.platform.pickFiles(dialogTitle: 'Choose ROM').then((FilePickerResult? result) {
+                            if (result == null) {
+                              return;
+                            }
+                            print(result);
+
+                            MainScreen.emulator.loadROM(result.files.single.bytes!);
+                          });
+
+                          if (MainScreen.emulator.state == EmulatorState.READY) {
+                            Modal.alert(context, 'Success', 'ROM loaded, ready to play.');
+                          }
+                        },
+                        color: Colors.black,
+                        child: Text("Load", style: const TextStyle(color: Colors.white)),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   /// Show a text input dialog to introduce string values.
   textInputDialog({String? hint, Function? onOpen}) async {
-    TextEditingController controller = new TextEditingController();
-    controller.text = hint != null ? hint : '';
+    TextEditingController controller = TextEditingController();
+    controller.text = hint ?? '';
 
     await showDialog<String>(
       context: context,
       builder: (BuildContext cx) {
-        return new AlertDialog(
+        return AlertDialog(
           contentPadding: const EdgeInsets.all(16.0),
-          content: new Row(
+          content: Row(
             children: <Widget>[
-              new Expanded(
-                child: new TextField(
-                  autofocus: true,
-                  controller: controller,
-                  decoration: new InputDecoration(labelText: 'File Name', hintText: hint != null ? hint : ''),
-                ),
-              ),
+              Expanded(child: TextField(autofocus: true, controller: controller, decoration: InputDecoration(labelText: 'File Name', hintText: hint ?? ''))),
             ],
           ),
           actions: <Widget>[
-            new MaterialButton(
+            MaterialButton(
               child: const Text('Cancel'),
               onPressed: () {
                 Navigator.pop(context);
               },
             ),
-            new MaterialButton(
+            MaterialButton(
               child: const Text('Open'),
               onPressed: () {
                 onOpen?.call(controller.text);

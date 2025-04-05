@@ -1,7 +1,5 @@
-
 /// Static class stores the IO related memory addresses.
-class Gamepad
-{
+class Gamepad {
   static const int A = 0;
   static const int B = 1;
   static const int RIGHT = 2;

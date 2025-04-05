@@ -2,25 +2,23 @@ import 'package:flutter/material.dart';
 
 import 'gui/main_screen.dart';
 
-void main()
-{
+void main() {
   runApp(DartBoy());
 }
 
-class DartBoy extends StatelessWidget
-{
+class DartBoy extends StatelessWidget {
+  const DartBoy({super.key});
+
   @override
-  Widget build(BuildContext context)
-  {
-    return new MaterialApp
-    (
+  Widget build(BuildContext context) {
+    return MaterialApp(
       title: 'GBC',
-      theme: new ThemeData(primarySwatch: Colors.blue),
-      home: new MainScreen(title: 'GBC'),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: MainScreen(title: 'GBC'),
       debugShowCheckedModeBanner: false,
       showPerformanceOverlay: false,
       showSemanticsDebugger: false,
-      debugShowMaterialGrid: false
+      debugShowMaterialGrid: false,
     );
   }
 }

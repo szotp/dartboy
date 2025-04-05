@@ -24,35 +24,43 @@ class FakePalette extends Palette {
 class GBPalette implements Palette {
   CPU cpu;
   int register = 0;
+  @override
   List<int> colors;
 
   GBPalette(this.cpu, this.colors, this.register) {
-    if (register != MemoryRegisters.BGP && register != MemoryRegisters.OBP0 && register != MemoryRegisters.OBP1) {
-      throw new Exception("Register must be one of R.R_BGP, R.R_OBP0, or R.R_OBP1.");
+    if (register != MemoryRegisters.BGP &&
+        register != MemoryRegisters.OBP0 &&
+        register != MemoryRegisters.OBP1) {
+      throw Exception(
+        "Register must be one of R.R_BGP, R.R_OBP0, or R.R_OBP1.",
+      );
     }
 
     if (colors.length < 4) {
-      throw new Exception("Colors must be of length 4.");
+      throw Exception("Colors must be of length 4.");
     }
   }
 
   @override
   int getColor(int number) {
-    return this.colors[(this.cpu.mmu.readRegisterByte(this.register) >> (number * 2)) & 0x3];
+    return colors[(cpu.mmu.readRegisterByte(register) >>
+            (number * 2)) &
+        0x3];
   }
 }
 
 class GBCPalette implements Palette {
+  @override
   List<int> colors;
 
   GBCPalette(this.colors) {
     if (colors.length < 4) {
-      throw new Exception("Colors must be of length 4.");
+      throw Exception("Colors must be of length 4.");
     }
   }
 
   @override
   int getColor(int number) {
-    return this.colors[number];
+    return colors[number];
   }
 }

@@ -12,8 +12,7 @@
 /// 8kB Video RAM 8000 - A000
 /// 16kB switchable ROM bank 4000 - 8000 (32kB Cartridge)
 /// 16kB ROM bank #0 0000 - 4000
-class MemoryAddresses
-{
+class MemoryAddresses {
   /// Total memory addressable size
   static const ADDRESS_SIZE = 65536;
 
@@ -71,4 +70,3 @@ class MemoryAddresses
   // Interrupt enable register
   static const INTERRUPT_ENABLE_REGISTER = 0xFFFF;
 }
-

@@ -24,67 +24,67 @@ class Emulator {
 
   /// Press a gamepad button down (update memory register).
   void buttonDown(int button) {
-    this.cpu.buttons[button] = true;
+    cpu.buttons[button] = true;
   }
 
   /// Release a gamepad button (update memory register).
   void buttonUp(int button) {
-    this.cpu.buttons[button] = false;
+    cpu.buttons[button] = false;
   }
 
   /// Load a ROM from a file and create the HW components for the emulator.
   void loadROM(Uint8List data) {
-    if (this.state != EmulatorState.WAITING) {
+    if (state != EmulatorState.WAITING) {
       print('Emulator should be reset to load ROM.');
       return;
     }
 
-    Cartridge cartridge = new Cartridge();
+    Cartridge cartridge = Cartridge();
     cartridge.load(data);
 
-    this.cpu = new CPU(cartridge);
+    cpu = CPU(cartridge);
 
-    this.state = EmulatorState.READY;
+    state = EmulatorState.READY;
 
-    this.printCartridgeInfo();
+    printCartridgeInfo();
   }
 
   /// Print some information about the ROM file loaded into the emulator.
   void printCartridgeInfo() {
     print('Catridge info');
-    print('Type: ' + this.cpu.cartridge.type.toString());
-    print('Name: ' + this.cpu.cartridge.name);
-    print('GB: ' + this.cpu.cartridge.gameboyType.toString());
-    print('SGB: ' + this.cpu.cartridge.superGameboy.toString());
+    print('Type: ${cpu.cartridge.type}');
+    print('Name: ${cpu.cartridge.name}');
+    print('GB: ${cpu.cartridge.gameboyType}');
+    print('SGB: ${cpu.cartridge.superGameboy}');
   }
 
   /// Reset the emulator, stop running the code and unload the cartridge
   void reset() {
     //this.cpu = null;
-    this.state = EmulatorState.WAITING;
+    state = EmulatorState.WAITING;
   }
 
   /// Do a single step in the cpu, set it to debug mode, step and then reset.
   void debugStep() {
-    if (this.state != EmulatorState.READY) {
+    if (state != EmulatorState.READY) {
       print('Emulator not ready, cannot step.');
       return;
     }
 
     bool wasDebug = Configuration.debugInstructions;
     Configuration.debugInstructions = true;
-    this.cpu.step();
+    cpu.step();
     Configuration.debugInstructions = wasDebug;
   }
 
   /// Run the emulation all full speed.
   void run() {
-    if (this.state != EmulatorState.READY) {
+    if (state != EmulatorState.READY) {
       print('Emulator not ready, cannot run.');
       return;
     }
 
-    this.state = EmulatorState.RUNNING;
+    state = EmulatorState.RUNNING;
 
     int frequency = CPU.FREQUENCY ~/ 4;
     double periodCPU = 1e6 / frequency;
@@ -93,18 +93,18 @@ class Emulator {
     double periodFPS = 1e6 / fps;
 
     int cycles = periodFPS ~/ periodCPU;
-    Duration period = new Duration(microseconds: periodFPS.toInt());
+    Duration period = Duration(microseconds: periodFPS.toInt());
 
-    Function loop = () async {
+    loop() async {
       while (true) {
-        if (this.state != EmulatorState.RUNNING) {
+        if (state != EmulatorState.RUNNING) {
           print('Stopped emulation.');
           return;
         }
 
         try {
           for (var i = 0; i < cycles; i++) {
-            this.cpu.step();
+            cpu.step();
           }
         } catch (e, stacktrace) {
           print('Error occured, emulation stoped.');
@@ -115,18 +115,18 @@ class Emulator {
 
         await Future.delayed(period);
       }
-    };
+    }
 
     loop();
   }
 
   /// Pause the emulation
   void pause() {
-    if (this.state != EmulatorState.RUNNING) {
+    if (state != EmulatorState.RUNNING) {
       print('Emulator not running cannot be paused');
       return;
     }
 
-    this.state = EmulatorState.READY;
+    state = EmulatorState.READY;
   }
 }

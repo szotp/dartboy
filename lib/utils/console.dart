@@ -5,19 +5,15 @@ import 'package:flutter/foundation.dart';
 /// Console class stores static method to log information into the development console.
 ///
 /// Provides a more complete output of the data.
-class Console
-{
+class Console {
   static const bool DEBUG_PRINT = true;
 
   /// Build a string to represent an object.
-  static String build(dynamic obj, {int level = 0})
-  {
-    try
-    {
-      JsonEncoder encoder = new JsonEncoder.withIndent('   ');
+  static String build(dynamic obj, {int level = 0}) {
+    try {
+      JsonEncoder encoder = JsonEncoder.withIndent('   ');
       return encoder.convert(obj);
-    }
-    catch(e){}
+    } catch (e) {}
 
     return obj.toString();
   }
@@ -25,14 +21,10 @@ class Console
   /// Log a object value into the console in a JSON like structure.
   ///
   /// @param obj Object to be printed into the console.
-  static void log(dynamic obj)
-  {
-    if(DEBUG_PRINT)
-    {
+  static void log(dynamic obj) {
+    if (DEBUG_PRINT) {
       debugPrintSynchronously(build(obj));
-    }
-    else
-    {
+    } else {
       print(build(obj));
     }
   }

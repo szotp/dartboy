@@ -1,5 +1,4 @@
-class MemoryRegisters
-{
+class MemoryRegisters {
   // Used to control the double speed mode (gameboy color only).
   static const int DOUBLE_SPEED = 0x4d;
 
@@ -11,7 +10,7 @@ class MemoryRegisters
 
   // Serial data control register, (data connection control, clock speed, etc).
   static const int SERIAL_SC = 0x02;
-  
+
   // Background palette (gameboy color only)
   static const int BACKGROUND_PALETTE_INDEX = 0x68;
   static const int BACKGROUND_PALETTE_DATA = 0x69;
@@ -113,4 +112,3 @@ class MemoryRegisters
   static const int LCD_STAT_MODE_OAM_RAM_SEARCH_BIT = 0x2;
   static const int LCD_STAT_MODE_DATA_TRANSFER_BIT = 0x3;
 }
-

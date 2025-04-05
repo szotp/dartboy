@@ -4,23 +4,28 @@ class Modal {
   /// Show a alert modal
   ///
   /// The onCancel callbacks receive BuildContext context as argument.
-  static void alert(BuildContext context, String title, String message, {required Function onCancel}) {
+  static void alert(
+    BuildContext context,
+    String title,
+    String message, {
+    Function? onCancel,
+  }) {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: new Text(title),
+          title: Text(title),
           actions: [
-            new CupertinoDialogAction(
-              child: new Text('OK'),
+            CupertinoDialogAction(
               isDestructiveAction: true,
               onPressed: () {
                 Navigator.pop(context);
-                onCancel();
+                onCancel?.call();
               },
+              child: Text('OK'),
             ),
           ],
-          content: new Text(message),
+          content: Text(message),
         );
       },
     );

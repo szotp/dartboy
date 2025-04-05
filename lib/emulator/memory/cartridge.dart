@@ -60,53 +60,56 @@ class Cartridge {
 
   /// Load cartridge byte data
   void load(List<int> data) {
-    this.size = data.length;
+    size = data.length;
     this.data = data;
 
-    this.type = this.readByte(0x147);
-    this.name = String.fromCharCodes(this.readBytes(0x134, 0x142));
-    this.romType = this.readByte(0x148);
-    this.ramType = this.readByte(0x149);
-    this.gameboyType = this.readByte(0x143) == 0x80 ? GameboyType.COLOR : GameboyType.CLASSIC;
-    this.superGameboy = this.readByte(0x146) == 0x3;
+    type = readByte(0x147);
+    name = String.fromCharCodes(readBytes(0x134, 0x142));
+    romType = readByte(0x148);
+    ramType = readByte(0x149);
+    gameboyType =
+        readByte(0x143) == 0x80 ? GameboyType.COLOR : GameboyType.CLASSIC;
+    superGameboy = readByte(0x146) == 0x3;
 
     // Calculate the special value used by the CGB boot ROM to colorize some monochrome games.
     int chk = 0;
     for (int i = 0; i < 16; i++) {
       chk += this.data[0x134 + i];
     }
-    this.checksum = chk & 0xFF;
+    checksum = chk & 0xFF;
 
-    this.setBankSizeRAM();
-    this.setBankSizeROM();
+    setBankSizeRAM();
+    setBankSizeROM();
   }
 
   /// Create a the memory controller of the cartridge.
   MMU createController(CPU cpu) {
-    if (this.type == CartridgeType.ROM) {
+    if (type == CartridgeType.ROM) {
       print('Created basic MMU unit.');
-      return new MMU(cpu);
-    } else if (this.type == CartridgeType.MBC1 || this.type == CartridgeType.MBC1_RAM || this.type == CartridgeType.MBC1_RAM_BATT) {
+      return MMU(cpu);
+    } else if (type == CartridgeType.MBC1 ||
+        type == CartridgeType.MBC1_RAM ||
+        type == CartridgeType.MBC1_RAM_BATT) {
       print('Created MBC1 unit.');
-      return new MBC1(cpu);
-    } else if (this.type == CartridgeType.MBC2 || this.type == CartridgeType.MBC2_BATT) {
+      return MBC1(cpu);
+    } else if (type == CartridgeType.MBC2 || type == CartridgeType.MBC2_BATT) {
       print('Created MBC2 unit.');
-      return new MBC2(cpu);
-    } else if (this.type == CartridgeType.MBC3 ||
-        this.type == CartridgeType.MBC3_RAM ||
-        this.type == CartridgeType.MBC3_RAM_BATT ||
-        this.type == CartridgeType.MBC3_TIMER_BATT ||
-        this.type == CartridgeType.MBC3_TIMER_RAM_BATT) {
+      return MBC2(cpu);
+    } else if (type == CartridgeType.MBC3 ||
+        type == CartridgeType.MBC3_RAM ||
+        type == CartridgeType.MBC3_RAM_BATT ||
+        type == CartridgeType.MBC3_TIMER_BATT ||
+        type == CartridgeType.MBC3_TIMER_RAM_BATT) {
       print('Created MBC3 unit.');
-      return new MBC3(cpu);
-    } else if (this.type == CartridgeType.MBC5 ||
-        this.type == CartridgeType.MBC5_RAM ||
-        this.type == CartridgeType.MBC5_RAM_BATT ||
-        this.type == CartridgeType.MBC5_RUMBLE ||
-        this.type == CartridgeType.MBC5_RUMBLE_SRAM ||
-        this.type == CartridgeType.MBC5_RUMBLE_SRAM_BATT) {
+      return MBC3(cpu);
+    } else if (type == CartridgeType.MBC5 ||
+        type == CartridgeType.MBC5_RAM ||
+        type == CartridgeType.MBC5_RAM_BATT ||
+        type == CartridgeType.MBC5_RUMBLE ||
+        type == CartridgeType.MBC5_RUMBLE_SRAM ||
+        type == CartridgeType.MBC5_RUMBLE_SRAM_BATT) {
       print('Created MBC5 unit.');
-      return new MBC5(cpu);
+      return MBC5(cpu);
     }
 
     throw "unknown";
@@ -114,52 +117,52 @@ class Cartridge {
 
   /// Checks if the cartridge has a internal battery to keep the RAM state.
   bool hasBattery() {
-    return this.type == CartridgeType.ROM_RAM_BATT ||
-        this.type == CartridgeType.ROM_MMM01_SRAM_BATT ||
-        this.type == CartridgeType.MBC1_RAM_BATT ||
-        this.type == CartridgeType.MBC3_TIMER_BATT ||
-        this.type == CartridgeType.MBC3_TIMER_RAM_BATT ||
-        this.type == CartridgeType.MBC3_RAM_BATT ||
-        this.type == CartridgeType.MBC5_RAM_BATT ||
-        this.type == CartridgeType.MBC5_RUMBLE_SRAM_BATT;
+    return type == CartridgeType.ROM_RAM_BATT ||
+        type == CartridgeType.ROM_MMM01_SRAM_BATT ||
+        type == CartridgeType.MBC1_RAM_BATT ||
+        type == CartridgeType.MBC3_TIMER_BATT ||
+        type == CartridgeType.MBC3_TIMER_RAM_BATT ||
+        type == CartridgeType.MBC3_RAM_BATT ||
+        type == CartridgeType.MBC5_RAM_BATT ||
+        type == CartridgeType.MBC5_RUMBLE_SRAM_BATT;
   }
 
   /// Set how many ROM banks exist based on the ROM type.
   void setBankSizeROM() {
-    if (this.romType == 52) {
-      this.romBanks = 72;
-    } else if (this.romType == 53) {
-      this.romBanks = 80;
-    } else if (this.romType == 54) {
-      this.romBanks = 96;
+    if (romType == 52) {
+      romBanks = 72;
+    } else if (romType == 53) {
+      romBanks = 80;
+    } else if (romType == 54) {
+      romBanks = 96;
     } else {
-      this.romBanks = (pow(2, this.romType + 1)).toInt();
+      romBanks = (pow(2, romType + 1)).toInt();
     }
   }
 
   /// Set how many RAM banks exist in the cartridge based on the RAM type.
   void setBankSizeRAM() {
-    if (this.ramType == 0) {
-      this.ramBanks = 0;
-    } else if (this.ramType == 1) {
-      this.ramBanks = 1;
-    } else if (this.ramType == 2) {
-      this.ramBanks = 1;
-    } else if (this.ramType == 3) {
-      this.ramBanks = 4;
-    } else if (this.ramType == 4) {
-      this.ramBanks = 16;
+    if (ramType == 0) {
+      ramBanks = 0;
+    } else if (ramType == 1) {
+      ramBanks = 1;
+    } else if (ramType == 2) {
+      ramBanks = 1;
+    } else if (ramType == 3) {
+      ramBanks = 4;
+    } else if (ramType == 4) {
+      ramBanks = 16;
     }
   }
 
   /// Read a range of bytes from the cartridge.
   List<int> readBytes(int initialAddress, int finalAddress) {
-    return this.data.sublist(initialAddress, finalAddress);
+    return data.sublist(initialAddress, finalAddress);
   }
 
   /// Read a single byte from cartridge
   int readByte(int address) {
-    return this.data[address] & 0xFF;
+    return data[address] & 0xFF;
   }
 }
 

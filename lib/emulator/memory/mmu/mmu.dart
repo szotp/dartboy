@@ -1,5 +1,4 @@
 import '../memory.dart';
-import '../../cpu/cpu.dart';
 
 /// The MMU (memory management unit) is used to access memory.
 ///
@@ -10,55 +9,48 @@ import '../../cpu/cpu.dart';
 /// From address 0x0000 to index 0x00FF is the bootstrap code the cartridge content only starts at 0x0100.
 ///
 /// Address 0x100 until index 0x3FFF include the contents of the cartridge (depending on the cartridge size this memory bank can change totally)
-class MMU extends Memory
-{
-  MMU(CPU cpu) : super(cpu);
+class MMU extends Memory {
+  MMU(super.cpu);
 
   /// Read a value from the OAM sprite memory.
   ///
   /// The OAM start address is added to the address received as parameter.
-  int readOAM(int address)
-  {
-    return this.oam[address];
+  int readOAM(int address) {
+    return oam[address];
   }
 
   /// Write a value into the OAM sprite memory.
   ///
   /// The OAM start address is added to the address received as parameter.
-  void writeOAM(int address, int value)
-  {
-    this.oam[address] = value;
+  void writeOAM(int address, int value) {
+    oam[address] = value;
   }
 
   /// Read a value from the Video RAM.
   ///
   /// The video RAM start address is added to the address received as parameter.
-  int readVRAM(int address)
-  {
-    return this.vram[address];
+  int readVRAM(int address) {
+    return vram[address];
   }
 
   /// Write a value into the Video RAM.
   ///
   /// The video RAM start address is added to the address received as parameter.
-  void writeVRAM(int address, int value)
-  {
-    this.vram[address] = value;
+  void writeVRAM(int address, int value) {
+    vram[address] = value;
   }
 
   /// Read a register value, register values are mapped between 0xFF00 to 0xFFFF
   ///
   /// Meaning of the values is stored in the MemoryRegisters class
-  int readRegisterByte(int address)
-  {
-    return this.registers[address];
+  int readRegisterByte(int address) {
+    return registers[address];
   }
 
   /// Read a register value, register values are mapped between 0xFF00 to 0xFFFF
   ///
   /// Meaning of the values is stored in the MemoryRegisters class
-  void writeRegisterByte(int address, int value)
-  {
-    this.registers[address] = value;
+  void writeRegisterByte(int address, int value) {
+    registers[address] = value;
   }
 }

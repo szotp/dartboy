@@ -63,98 +63,98 @@ class CPU {
 
   /// 16 bit Program Counter, the memory address of the next instruction to be fetched
   set pc(int value) {
-    this.pointers[PC] = value;
+    pointers[PC] = value;
   }
 
   int get pc {
-    return this.pointers[PC];
+    return pointers[PC];
   }
 
   /// 16 bit Stack Pointer, the memory address of the top of the stack
   set sp(int value) {
-    this.pointers[SP] = value;
+    pointers[SP] = value;
   }
 
   int get sp {
-    return this.pointers[SP];
+    return pointers[SP];
   }
 
   CPU(this.cartridge) {
-    this.pointers = new List<int>.filled(8, 0);
+    pointers = List<int>.filled(8, 0);
 
-    this.mmu = this.cartridge.createController(this);
-    this.ppu = new PPU(this);
-    this.registers = new Registers(this);
+    mmu = cartridge.createController(this);
+    ppu = PPU(this);
+    registers = Registers(this);
 
-    this.reset();
+    reset();
   }
 
   /// Reset the CPU, also resets the MMU, registers and PPU.
   void reset() {
-    this.buttons = new List<bool>.filled(8, false);
-    this.buttons.fillRange(0, 8, false);
+    buttons = List<bool>.filled(8, false);
+    buttons.fillRange(0, 8, false);
 
-    this.clockSpeed = FREQUENCY;
-    this.doubleSpeed = false;
-    this.divCycle = 0;
-    this.timerCycle = 0;
-    this.sp = 0xFFFE;
-    this.pc = 0x0100;
+    clockSpeed = FREQUENCY;
+    doubleSpeed = false;
+    divCycle = 0;
+    timerCycle = 0;
+    sp = 0xFFFE;
+    pc = 0x0100;
 
-    this.halted = false;
-    this.interruptsEnabled = false;
+    halted = false;
+    interruptsEnabled = false;
 
-    this.clocks = 0;
-    this.cyclesSinceLastSleep = 0;
-    this.cyclesExecutedThisSecond = 0;
+    clocks = 0;
+    cyclesSinceLastSleep = 0;
+    cyclesExecutedThisSecond = 0;
 
-    this.registers.reset();
-    this.ppu.reset();
-    this.mmu.reset();
+    registers.reset();
+    ppu.reset();
+    mmu.reset();
   }
 
   /// Read the next program byte and update the PC value
   int nextUnsignedBytePC() {
-    return this.getUnsignedByte(this.pc++);
+    return getUnsignedByte(pc++);
   }
 
   /// Read the next program byte and update the PC value
   int nextSignedBytePC() {
-    return this.getSignedByte(this.pc++);
+    return getSignedByte(pc++);
   }
 
   /// Read a unsiged byte value from memory.
   int getUnsignedByte(int address) {
-    this.tick(4);
-    return this.mmu.readByte(address) & 0xFF;
+    tick(4);
+    return mmu.readByte(address) & 0xFF;
   }
 
   /// Read a byte from memory and update the clock count.
   int getSignedByte(int address) {
-    this.tick(4);
-    return (this.mmu.readByte(address) & 0xFF).toSigned(8);
+    tick(4);
+    return (mmu.readByte(address) & 0xFF).toSigned(8);
   }
 
   /// Write a byte into memory (takes 4 clocks)
   void setByte(int address, int value) {
-    this.tick(4);
-    this.mmu.writeByte(address, value);
+    tick(4);
+    mmu.writeByte(address, value);
   }
 
   /// Push word into the temporary stack and update the stack pointer
   void pushWordSP(int value) {
-    this.sp -= 2;
-    this.mmu.writeByte(this.sp, value & 0xFF);
-    this.mmu.writeByte(this.sp + 1, (value >> 8) & 0xFF);
+    sp -= 2;
+    mmu.writeByte(sp, value & 0xFF);
+    mmu.writeByte(sp + 1, (value >> 8) & 0xFF);
   }
 
   ///Increase the clock cycles and trigger interrupts as needed.
   void tick(int delta) {
-    this.clocks += delta;
-    this.cyclesSinceLastSleep += delta;
-    this.cyclesExecutedThisSecond += delta;
+    clocks += delta;
+    cyclesSinceLastSleep += delta;
+    cyclesExecutedThisSecond += delta;
 
-    this.updateInterrupts(delta);
+    updateInterrupts(delta);
   }
 
   /// Update interrupt counter, check for interruptions waiting.
@@ -163,24 +163,27 @@ class CPU {
   ///
   /// @param delta CPU cycles elapsed since the last call to this method
   void updateInterrupts(int delta) {
-    if (this.doubleSpeed) {
+    if (doubleSpeed) {
       delta ~/= 2;
     }
 
     // The DIV register increments at 16KHz, and resets to 0 after
-    this.divCycle += delta;
+    divCycle += delta;
 
-    if (this.divCycle >= 256) {
-      this.divCycle -= 256;
-      this.mmu.writeRegisterByte(MemoryRegisters.DIV, this.mmu.readRegisterByte(MemoryRegisters.DIV) + 1);
+    if (divCycle >= 256) {
+      divCycle -= 256;
+      mmu.writeRegisterByte(
+        MemoryRegisters.DIV,
+        mmu.readRegisterByte(MemoryRegisters.DIV) + 1,
+      );
     }
 
     // The Timer is similar to DIV, except that when it overflows it triggers an interrupt
-    int tac = this.mmu.readRegisterByte(MemoryRegisters.TAC);
+    int tac = mmu.readRegisterByte(MemoryRegisters.TAC);
 
     // If timer 3 bit is set the timer should start
     if ((tac & 0x4) != 0) {
-      this.timerCycle += delta;
+      timerCycle += delta;
 
       // The Timer has a settable frequency
       int timerPeriod = 0;
@@ -188,100 +191,113 @@ class CPU {
       switch (tac & 0x3) {
         // 4096 Hz
         case 0x0:
-          timerPeriod = this.clockSpeed ~/ 4096;
+          timerPeriod = clockSpeed ~/ 4096;
           break;
         // 262144 Hz
         case 0x1:
-          timerPeriod = this.clockSpeed ~/ 262144;
+          timerPeriod = clockSpeed ~/ 262144;
           break;
         // 65536 Hz
         case 0x2:
-          timerPeriod = this.clockSpeed ~/ 65536;
+          timerPeriod = clockSpeed ~/ 65536;
           break;
         // 16384 Hz
         case 0x3:
-          timerPeriod = this.clockSpeed ~/ 16384;
+          timerPeriod = clockSpeed ~/ 16384;
           break;
       }
 
-      while (this.timerCycle >= timerPeriod) {
-        this.timerCycle -= timerPeriod;
+      while (timerCycle >= timerPeriod) {
+        timerCycle -= timerPeriod;
 
         // And it resets to a specific value
-        int tima = (this.mmu.readRegisterByte(MemoryRegisters.TIMA) & 0xFF) + 1;
+        int tima = (mmu.readRegisterByte(MemoryRegisters.TIMA) & 0xFF) + 1;
 
         if (tima > 0xFF) {
-          tima = this.mmu.readRegisterByte(MemoryRegisters.TMA) & 0xFF;
+          tima = mmu.readRegisterByte(MemoryRegisters.TMA) & 0xFF;
           setInterruptTriggered(MemoryRegisters.TIMER_OVERFLOW_BIT);
         }
 
-        this.mmu.writeRegisterByte(MemoryRegisters.TIMA, tima & 0xFF);
+        mmu.writeRegisterByte(MemoryRegisters.TIMA, tima & 0xFF);
       }
     }
 
-    this.ppu.tick(delta);
+    ppu.tick(delta);
   }
 
   /// Triggers a particular interrupt by writing the correct interrupt bit to the interrupt register.
   ///
   /// @param interrupt The interrupt bit.
   void setInterruptTriggered(int interrupt) {
-    this.mmu.writeRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS, this.mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) | interrupt);
+    mmu.writeRegisterByte(
+      MemoryRegisters.TRIGGERED_INTERRUPTS,
+      mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) | interrupt,
+    );
   }
 
   /// Fires interrupts if interrupts are enabled.
   void fireInterrupts() {
     // Auxiliary method to check if an interruption was triggered.
     bool interruptTriggered(int interrupt) {
-      return (this.mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) & this.mmu.readRegisterByte(MemoryRegisters.ENABLED_INTERRUPTS) & interrupt) != 0;
+      return (mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) &
+              mmu.readRegisterByte(MemoryRegisters.ENABLED_INTERRUPTS) &
+              interrupt) !=
+          0;
     }
 
     // If interrupts are disabled (via the DI instruction), ignore this call
-    if (!this.interruptsEnabled) {
+    if (!interruptsEnabled) {
       return;
     }
 
     // Flag of which interrupts should be triggered
-    int triggeredInterrupts = this.mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS);
+    int triggeredInterrupts = mmu.readRegisterByte(
+      MemoryRegisters.TRIGGERED_INTERRUPTS,
+    );
 
     // Which interrupts the program is actually interested in, these are the ones we will fire
-    int enabledInterrupts = this.mmu.readRegisterByte(MemoryRegisters.ENABLED_INTERRUPTS);
+    int enabledInterrupts = mmu.readRegisterByte(
+      MemoryRegisters.ENABLED_INTERRUPTS,
+    );
 
     // If this is nonzero, then some interrupt that we are checking for was triggered
     if ((triggeredInterrupts & enabledInterrupts) != 0) {
-      this.pushWordSP(this.pc);
+      pushWordSP(pc);
 
       // This is important
-      this.interruptsEnabled = false;
+      interruptsEnabled = false;
 
       // Interrupt priorities are vblank > lcdc > tima overflow > serial transfer > hilo
       if (interruptTriggered(MemoryRegisters.VBLANK_BIT)) {
-        this.pc = MemoryRegisters.VBLANK_HANDLER_ADDRESS;
+        pc = MemoryRegisters.VBLANK_HANDLER_ADDRESS;
         triggeredInterrupts &= ~MemoryRegisters.VBLANK_BIT;
       } else if (interruptTriggered(MemoryRegisters.LCDC_BIT)) {
-        this.pc = MemoryRegisters.LCDC_HANDLER_ADDRESS;
+        pc = MemoryRegisters.LCDC_HANDLER_ADDRESS;
         triggeredInterrupts &= ~MemoryRegisters.LCDC_BIT;
       } else if (interruptTriggered(MemoryRegisters.TIMER_OVERFLOW_BIT)) {
-        this.pc = MemoryRegisters.TIMER_OVERFLOW_HANDLER_ADDRESS;
+        pc = MemoryRegisters.TIMER_OVERFLOW_HANDLER_ADDRESS;
         triggeredInterrupts &= ~MemoryRegisters.TIMER_OVERFLOW_BIT;
       } else if (interruptTriggered(MemoryRegisters.SERIAL_TRANSFER_BIT)) {
-        this.pc = MemoryRegisters.SERIAL_TRANSFER_HANDLER_ADDRESS;
+        pc = MemoryRegisters.SERIAL_TRANSFER_HANDLER_ADDRESS;
         triggeredInterrupts &= ~MemoryRegisters.SERIAL_TRANSFER_BIT;
       } else if (interruptTriggered(MemoryRegisters.HILO_BIT)) {
-        this.pc = MemoryRegisters.HILO_HANDLER_ADDRESS;
+        pc = MemoryRegisters.HILO_HANDLER_ADDRESS;
         triggeredInterrupts &= ~MemoryRegisters.HILO_BIT;
       }
 
-      this.mmu.writeRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS, triggeredInterrupts);
+      mmu.writeRegisterByte(
+        MemoryRegisters.TRIGGERED_INTERRUPTS,
+        triggeredInterrupts,
+      );
     }
   }
 
   /// Next step in the CPU processing, should be called at a fixed rate.
   void step() {
-    this.execute();
+    execute();
 
-    if (this.interruptsEnabled) {
-      this.fireInterrupts();
+    if (interruptsEnabled) {
+      fireInterrupts();
     }
   }
 
@@ -291,7 +307,7 @@ class CPU {
   void setDoubleSpeed(bool doubleSpeed) {
     if (this.doubleSpeed != doubleSpeed) {
       this.doubleSpeed = doubleSpeed;
-      this.clockSpeed = this.doubleSpeed ? (FREQUENCY * 2) : FREQUENCY;
+      clockSpeed = this.doubleSpeed ? (FREQUENCY * 2) : FREQUENCY;
     }
   }
 
@@ -306,24 +322,24 @@ class CPU {
     data += 'HL: 0x' + this.registers.hl.toRadixString(16) + '\n';*/
 
     data += 'CPU:\n';
-    data += 'PC: 0x' + this.pc.toRadixString(16) + '\n';
-    data += 'SP: 0x' + this.sp.toRadixString(16) + '\n';
-    data += 'Clocks: ' + this.clocks.toString() + '\n';
+    data += 'PC: 0x${pc.toRadixString(16)}\n';
+    data += 'SP: 0x${sp.toRadixString(16)}\n';
+    data += 'Clocks: $clocks\n';
 
     return data;
   }
 
   /// Decode the instruction, execute it, update the CPU timer variables, check for interrupts.
   void execute() {
-    if (this.halted) {
-      if (this.mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) == 0) {
-        this.clocks += 4;
+    if (halted) {
+      if (mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) == 0) {
+        clocks += 4;
       }
 
-      this.halted = false;
+      halted = false;
     }
 
-    int op = this.nextUnsignedBytePC();
+    int op = nextUnsignedBytePC();
 
     switch (op) {
       case 0x00:
@@ -650,7 +666,9 @@ class CPU {
             Instructions.LD_r_r(this, op);
             break;
           default:
-            throw new Exception('Unsupported operation, (OP: 0x' + op.toRadixString(16) + ')');
+            throw Exception(
+              'Unsupported operation, (OP: 0x${op.toRadixString(16)})',
+            );
         }
     }
   }

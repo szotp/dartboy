@@ -17,11 +17,18 @@ class Button extends StatefulWidget {
   /// Label
   final String label;
 
-  Button({required this.label, required this.color, required this.onPressed, required this.onReleased, this.labelColor = Colors.white, Key? key})
-    : super(key: key);
+  const Button({
+    required this.label,
+    required this.color,
+    required this.onPressed,
+    required this.onReleased,
+    this.labelColor = Colors.white,
+    super.key,
+  });
 
+  @override
   ButtonState createState() {
-    return new ButtonState();
+    return ButtonState();
   }
 }
 
@@ -33,33 +40,41 @@ class ButtonState extends State<Button> {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
       padding: const EdgeInsets.only(left: 0.0),
-      child: new InkWell(
+      child: InkWell(
         enableFeedback: true,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         onHighlightChanged: (bool highlight) {
-          if (!this.pressed && highlight) {
-            this.widget.onPressed();
+          if (!pressed && highlight) {
+            widget.onPressed();
           }
 
-          if (this.pressed && !highlight) {
-            this.widget.onReleased();
+          if (pressed && !highlight) {
+            widget.onReleased();
           }
 
-          this.pressed = highlight;
-          this.setState(() {});
+          pressed = highlight;
+          setState(() {});
         },
         onTap: () {},
-        child: new Row(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            new Container(
+            Container(
               height: 50.0,
               width: 50.0,
-              decoration: new BoxDecoration(color: this.pressed ? Colors.grey : this.widget.color, borderRadius: new BorderRadius.circular(20.0)),
-              child: new Center(child: new Text(this.widget.label, style: new TextStyle(color: this.widget.labelColor))),
+              decoration: BoxDecoration(
+                color: pressed ? Colors.grey : widget.color,
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Center(
+                child: Text(
+                  widget.label,
+                  style: TextStyle(color: widget.labelColor),
+                ),
+              ),
             ),
           ],
         ),
