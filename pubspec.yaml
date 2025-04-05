@@ -17,6 +17,7 @@ dependencies:
   audioplayers: any
   file_picker: any
   image: any
+  super_drag_and_drop: ^0.8.24
 dev_dependencies:
   lint: any
   flutter_test:

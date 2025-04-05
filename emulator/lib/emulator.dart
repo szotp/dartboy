@@ -49,9 +49,7 @@ class Emulator {
       return;
     }
 
-    final Cartridge cartridge = Cartridge();
-    cartridge.load(data);
-
+    final Cartridge cartridge = Cartridge(data);
     cpu = CPU(cartridge);
 
     state = EmulatorState.READY;
@@ -116,5 +114,11 @@ class Emulator {
     }
 
     state = EmulatorState.READY;
+  }
+
+  Future<void> loadAndRun(Uint8List bytes) {
+    reset();
+    loadROM(bytes);
+    return run();
   }
 }

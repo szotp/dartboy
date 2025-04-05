@@ -38,10 +38,6 @@ class _PPUListenable extends ChangeNotifier {
 
   _PPUListenable(this.ppu) {
     ppu.notifyListeners = (buffer) {
-      for (int i = 0; i < buffer.length; i++) {
-        buffer[i] = buffer[i] + 0xFF000000;
-      }
-
       decodeImageFromPixels(buffer.buffer.asUint8List(), PPU.LCD_WIDTH, PPU.LCD_HEIGHT, PixelFormat.rgba8888, (image) {
         this.image = image;
         notifyListeners();

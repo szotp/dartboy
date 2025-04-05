@@ -10,76 +10,60 @@ import 'package:emulator/memory/mmu/mmu.dart';
 /// Stores the cartridge information and data.
 ///
 /// Also manages the cartridge type and is responsible for the memory bank switching.
-class Cartridge {
+final class Cartridge {
   /// Data stored in the cartridge (directly loaded from a ROM file).
-  late List<int> data;
+  final List<int> data;
 
   /// Size of the memory in bytes
-  int size = 0;
+  late final int size = data.length;
 
   /// Cartridge name read from the
-  late String name;
+  late final String name = String.fromCharCodes(readBytes(0x134, 0x142));
 
   /// Cartridge type, there are 16 different types.
   ///
   /// Read from memory address 0x147 (Check page 11 of the GB CPU manual for details)
-  int type = 0;
+  late final int type = readByte(0x147);
 
   /// In cartridge ROM configuration. Read from the address 0x148.
   ///
   /// (Check page 12 of the GB CPU manual for details)
-  int romType = 0;
+  late final int romType = readByte(0x148);
 
   /// Indicates how many rom banks there are available.
   ///
   /// Each ROM bank has 32KB in size
-  int romBanks = 0;
+  late final int romBanks = _getRomBanks();
 
   /// In cartridge RAM configuration. Read from the address 0x149.
   ///
   /// (Check page 12 of the GB CPU manual for details)
-  int ramType = 0;
+  late final int ramType = readByte(0x149);
 
   /// Indicates how many RAM banks are available in the cartridge.
   ///
   /// Each bank has 8KBytes in size.
-  int ramBanks = 0;
+  late final int ramBanks = _getRamBanks();
 
   /// Cartridge checksum, used to check if the data of the game is good, and also used to select the better color palette in classic gb games.
-  int checksum = 0;
+  late final int checksum = () {
+    int chk = 0;
+    for (int i = 0; i < 16; i++) {
+      chk += data[0x134 + i];
+    }
+
+    return chk & 0xFF;
+  }();
 
   /// In CGB cartridges the upper bit is used to enable CGB functions. This is required, otherwise the CGB switches itself into Non-CGB-Mode.
   ///
   /// There are two different CGB modes 80h Game supports CGB functions, but works on old gameboys also, C0h Game works on CGB only.
-  late GameboyType gameboyType;
+  late final GameboyType gameboyType = readByte(0x143) == 0x80 ? GameboyType.COLOR : GameboyType.CLASSIC;
 
   /// SGB mode indicates if the game has super gameboy features
-  late bool superGameboy;
+  late final bool superGameboy = readByte(0x146) == 0x3;
 
-  Cartridge();
-
-  /// Load cartridge byte data
-  void load(List<int> data) {
-    size = data.length;
-    this.data = data;
-
-    type = readByte(0x147);
-    name = String.fromCharCodes(readBytes(0x134, 0x142));
-    romType = readByte(0x148);
-    ramType = readByte(0x149);
-    gameboyType = readByte(0x143) == 0x80 ? GameboyType.COLOR : GameboyType.CLASSIC;
-    superGameboy = readByte(0x146) == 0x3;
-
-    // Calculate the special value used by the CGB boot ROM to colorize some monochrome games.
-    int chk = 0;
-    for (int i = 0; i < 16; i++) {
-      chk += this.data[0x134 + i];
-    }
-    checksum = chk & 0xFF;
-
-    setBankSizeRAM();
-    setBankSizeROM();
-  }
+  Cartridge(this.data);
 
   /// Create a the memory controller of the cartridge.
   MMU createController(CPU cpu) {
@@ -125,30 +109,32 @@ class Cartridge {
   }
 
   /// Set how many ROM banks exist based on the ROM type.
-  void setBankSizeROM() {
+  int _getRomBanks() {
     if (romType == 52) {
-      romBanks = 72;
+      return 72;
     } else if (romType == 53) {
-      romBanks = 80;
+      return 80;
     } else if (romType == 54) {
-      romBanks = 96;
+      return 96;
     } else {
-      romBanks = pow(2, romType + 1).toInt();
+      return pow(2, romType + 1).toInt();
     }
   }
 
   /// Set how many RAM banks exist in the cartridge based on the RAM type.
-  void setBankSizeRAM() {
+  int _getRamBanks() {
     if (ramType == 0) {
-      ramBanks = 0;
+      return 0;
     } else if (ramType == 1) {
-      ramBanks = 1;
+      return 1;
     } else if (ramType == 2) {
-      ramBanks = 1;
+      return 1;
     } else if (ramType == 3) {
-      ramBanks = 4;
+      return 4;
     } else if (ramType == 4) {
-      ramBanks = 16;
+      return 16;
+    } else {
+      throw "unknown";
     }
   }
 

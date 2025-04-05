@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartboy/gui/Modal.dart';
 import 'package:dartboy/gui/button.dart';
 import 'package:dartboy/gui/lcd.dart';
@@ -7,6 +9,7 @@ import 'package:emulator/memory/gamepad.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 String? preload = "pokemon.gb";
 
@@ -34,24 +37,61 @@ class MainScreenState extends State<MainScreen> {
     final name = preload;
     if (name != null) {
       final data = await rootBundle.load("assets/$name");
-      emulator.loadROM(data.buffer.asUint8List());
-      emulator.run();
-      setState(() {});
+      final list = data.buffer.asUint8List();
+
+      setState(() {
+        emulator.loadAndRun(list);
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        children: <Widget>[
-          // LCD
-          AspectRatio(aspectRatio: PPU.LCD_WIDTH / PPU.LCD_HEIGHT, child: EmulatorScreenWidget(emulator: emulator)),
-          Flexible(child: EmulatorButtonsWidget(emulator: emulator)),
-        ],
+    return DropRegion(
+      formats: const [Formats.fileUri],
+      onDropOver: (x) {
+        return DropOperation.link;
+      },
+      onPerformDrop: performDrop,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Column(
+          children: <Widget>[
+            // LCD
+            AspectRatio(aspectRatio: PPU.LCD_WIDTH / PPU.LCD_HEIGHT, child: EmulatorScreenWidget(emulator: emulator)),
+            Flexible(child: EmulatorButtonsWidget(emulator: emulator)),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> performDrop(PerformDropEvent event) async {
+    final item = event.session.items.first;
+
+    final completer = Completer<Uint8List>();
+
+    item.dataReader!.getFile(
+      null,
+      (x) async {
+        if (!(x.fileName ?? "").endsWith("gb")) {
+          completer.completeError("Not GB file");
+          return;
+        }
+
+        final bytes = await x.readAll();
+        completer.complete(bytes);
+      },
+      onError: (value) {
+        completer.completeError(value);
+      },
+    );
+
+    final bytes = await completer.future;
+
+    setState(() {
+      emulator.loadAndRun(bytes);
+    });
   }
 }
 
