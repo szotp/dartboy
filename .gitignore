@@ -42,3 +42,6 @@ wgbc/\.vs/
 *.rtc
 *.sav
 *.tmp
+.dart_tool
+.flutter-plugins-dependencies
+.flutter-plugins
