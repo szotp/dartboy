@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:emulator/configuration.dart';
 import 'package:emulator/cpu/cpu.dart';
 import 'package:emulator/graphics/palette.dart';
@@ -6,7 +8,7 @@ import 'package:emulator/memory/cartridge.dart';
 import 'package:emulator/memory/memory_addresses.dart';
 import 'package:emulator/memory/memory_registers.dart';
 
-typedef NotifyListeners = void Function();
+typedef NotifyListeners = void Function(Int32List);
 
 /// LCD class handles all the screen drawing tasks.
 ///
@@ -37,12 +39,12 @@ class PPU {
   /// A buffer to hold the current rendered frame that can be directly copied to the canvas on the widget.
   ///
   /// Each position stores RGB encoded color value. The data is stored by rows.
-  late List<int> buffer;
+  Int32List buffer = Int32List(LCD_WIDTH * LCD_HEIGHT);
 
   /// Current rendered image to be displayed on screen.
   ///
   /// This buffer is swapped with the main drawing buffer.
-  late List<int> current;
+  Int32List current = Int32List(LCD_WIDTH * LCD_HEIGHT);
 
   /// Background palettes. On CGB, 0-7 are used. On GB, only 0 is used.
   late List<Palette> bgPalettes;
@@ -85,10 +87,7 @@ class PPU {
     spritePalettes = List<Palette>.filled(8, FakePalette());
     gbcBackgroundPaletteMemory = List<int>.filled(0x40, 0);
 
-    buffer = List<int>.filled(PPU.LCD_WIDTH * PPU.LCD_HEIGHT, 0);
     buffer.fillRange(0, buffer.length, 0);
-
-    current = List<int>.filled(PPU.LCD_WIDTH * PPU.LCD_HEIGHT, 0);
     current.fillRange(0, current.length, 0);
 
     gbcSpritePaletteMemory = List<int>.filled(0x40, 0);
@@ -299,11 +298,11 @@ class PPU {
     // Start of a new frame
     if (scanline == 0) {
       // Swap buffer and current
-      final List<int> temp = buffer;
+      final temp = buffer;
       buffer = current;
       current = temp;
 
-      notifyListeners?.call();
+      notifyListeners?.call(current);
 
       //Clear drawing buffer
       buffer.fillRange(0, buffer.length, 0);
@@ -329,7 +328,7 @@ class PPU {
   ///
   /// @param data The raster to write to.
   /// @param scanline The current scanline.
-  void drawBackgroundTiles(List<int> data, int scanline) {
+  void drawBackgroundTiles(Int32List data, int scanline) {
     if (!Configuration.drawBackgroundLayer) {
       return;
     }
@@ -395,7 +394,7 @@ class PPU {
   ///
   /// @param data The raster to write to.
   /// @param scanline The current scanline.
-  void drawWindow(List<int> data, int scanline) {
+  void drawWindow(Int32List data, int scanline) {
     final int tileDataOffset = getTileDataOffset();
 
     // The window layer is offset-able from 0,0
@@ -448,7 +447,7 @@ class PPU {
   /// @param bank The tile bank to use.
   /// @param basePriority The current priority for the given tile.
   /// @param sprite Whether the tile beints to a sprite or not.
-  void drawTile(Palette palette, List<int> data, int x, int y, int tile, int scanline, bool flipX, bool flipY, int bank, int basePriority, bool sprite) {
+  void drawTile(Palette palette, Int32List data, int x, int y, int tile, int scanline, bool flipX, bool flipY, int bank, int basePriority, bool sprite) {
     // Store a local copy to save a lot of load opcodes.
     final int line = scanline - y;
     final int addressBase = MemoryAddresses.VRAM_PAGESIZE * bank + tile * 16;
@@ -498,7 +497,7 @@ class PPU {
   ///
   /// @param data The raster to write to.
   /// @param scanline The current scanline.
-  void drawSprites(List<int> data, int scanline) {
+  void drawSprites(Int32List data, int scanline) {
     if (!Configuration.drawSpriteLayer) {
       return;
     }

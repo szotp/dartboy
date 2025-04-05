@@ -1,10 +1,9 @@
-import 'dart:typed_data' show Float32List;
 import 'dart:ui';
 
-import 'package:dartboy/utils/color_converter.dart';
 import 'package:emulator/emulator.dart';
 import 'package:emulator/graphics/ppu.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Colors;
+import 'package:flutter/widgets.dart' hide Image;
 
 class EmulatorScreenWidget extends StatelessWidget {
   final Emulator emulator;
@@ -21,7 +20,12 @@ class EmulatorScreenWidget extends StatelessWidget {
     return Container(
       color: Colors.grey[800],
       child: FittedBox(
-        child: CustomPaint(isComplex: true, willChange: true, painter: _LCDPainter(ppu), size: Size(PPU.LCD_WIDTH.toDouble(), PPU.LCD_HEIGHT.toDouble())),
+        child: CustomPaint(
+          isComplex: true,
+          willChange: true,
+          painter: _LCDPainter(_PPUListenable(ppu)),
+          size: Size(PPU.LCD_WIDTH.toDouble(), PPU.LCD_HEIGHT.toDouble()),
+        ),
       ),
     );
   }
@@ -30,37 +34,37 @@ class EmulatorScreenWidget extends StatelessWidget {
 class _PPUListenable extends ChangeNotifier {
   final PPU ppu;
 
+  Image? image;
+
   _PPUListenable(this.ppu) {
-    ppu.notifyListeners = notifyListeners;
+    ppu.notifyListeners = (buffer) {
+      for (int i = 0; i < buffer.length; i++) {
+        buffer[i] = buffer[i] + 0xFF000000;
+      }
+
+      decodeImageFromPixels(buffer.buffer.asUint8List(), PPU.LCD_WIDTH, PPU.LCD_HEIGHT, PixelFormat.rgba8888, (image) {
+        this.image = image;
+        notifyListeners();
+      });
+    };
   }
 }
 
 /// LCD painter is used to copy the LCD data from the gameboy PPU to the screen.
 class _LCDPainter extends CustomPainter {
-  final PPU ppu;
+  final _PPUListenable listenable;
 
-  _LCDPainter(this.ppu) : super(repaint: _PPUListenable(ppu));
+  _LCDPainter(this.listenable) : super(repaint: listenable);
 
   @override
   void paint(Canvas canvas, Size size) {
-    const int width = PPU.LCD_WIDTH;
-    const int height = PPU.LCD_HEIGHT;
+    final image = listenable.image;
 
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        final Paint color = Paint();
-        color.style = PaintingStyle.stroke;
-        color.strokeWidth = 1.0;
-
-        color.color = ColorConverter.toColor(ppu.current[x + y * PPU.LCD_WIDTH]);
-
-        final List<double> points = List<double>.empty(growable: true);
-        points.add(x.toDouble());
-        points.add(y.toDouble());
-
-        canvas.drawRawPoints(PointMode.points, Float32List.fromList(points), color);
-      }
+    if (image == null) {
+      return;
     }
+
+    canvas.drawImage(image, Offset.zero, Paint());
   }
 
   @override
