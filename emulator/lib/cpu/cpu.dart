@@ -1,9 +1,9 @@
-import '../graphics/ppu.dart';
-import '../memory/cartridge.dart';
-import '../memory/memory_registers.dart';
-import '../memory/mmu/mmu.dart';
-import 'instructions.dart';
-import 'registers.dart';
+import 'package:emulator/cpu/instructions.dart';
+import 'package:emulator/cpu/registers.dart';
+import 'package:emulator/graphics/ppu.dart';
+import 'package:emulator/memory/cartridge.dart';
+import 'package:emulator/memory/memory_registers.dart';
+import 'package:emulator/memory/mmu/mmu.dart';
 
 /// CPU class is responsible for the instruction execution, interrupts and timing of the system.
 ///
@@ -172,14 +172,11 @@ class CPU {
 
     if (divCycle >= 256) {
       divCycle -= 256;
-      mmu.writeRegisterByte(
-        MemoryRegisters.DIV,
-        mmu.readRegisterByte(MemoryRegisters.DIV) + 1,
-      );
+      mmu.writeRegisterByte(MemoryRegisters.DIV, mmu.readRegisterByte(MemoryRegisters.DIV) + 1);
     }
 
     // The Timer is similar to DIV, except that when it overflows it triggers an interrupt
-    int tac = mmu.readRegisterByte(MemoryRegisters.TAC);
+    final int tac = mmu.readRegisterByte(MemoryRegisters.TAC);
 
     // If timer 3 bit is set the timer should start
     if ((tac & 0x4) != 0) {
@@ -192,19 +189,15 @@ class CPU {
         // 4096 Hz
         case 0x0:
           timerPeriod = clockSpeed ~/ 4096;
-          break;
         // 262144 Hz
         case 0x1:
           timerPeriod = clockSpeed ~/ 262144;
-          break;
         // 65536 Hz
         case 0x2:
           timerPeriod = clockSpeed ~/ 65536;
-          break;
         // 16384 Hz
         case 0x3:
           timerPeriod = clockSpeed ~/ 16384;
-          break;
       }
 
       while (timerCycle >= timerPeriod) {
@@ -229,20 +222,14 @@ class CPU {
   ///
   /// @param interrupt The interrupt bit.
   void setInterruptTriggered(int interrupt) {
-    mmu.writeRegisterByte(
-      MemoryRegisters.TRIGGERED_INTERRUPTS,
-      mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) | interrupt,
-    );
+    mmu.writeRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS, mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) | interrupt);
   }
 
   /// Fires interrupts if interrupts are enabled.
   void fireInterrupts() {
     // Auxiliary method to check if an interruption was triggered.
     bool interruptTriggered(int interrupt) {
-      return (mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) &
-              mmu.readRegisterByte(MemoryRegisters.ENABLED_INTERRUPTS) &
-              interrupt) !=
-          0;
+      return (mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS) & mmu.readRegisterByte(MemoryRegisters.ENABLED_INTERRUPTS) & interrupt) != 0;
     }
 
     // If interrupts are disabled (via the DI instruction), ignore this call
@@ -251,14 +238,10 @@ class CPU {
     }
 
     // Flag of which interrupts should be triggered
-    int triggeredInterrupts = mmu.readRegisterByte(
-      MemoryRegisters.TRIGGERED_INTERRUPTS,
-    );
+    int triggeredInterrupts = mmu.readRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS);
 
     // Which interrupts the program is actually interested in, these are the ones we will fire
-    int enabledInterrupts = mmu.readRegisterByte(
-      MemoryRegisters.ENABLED_INTERRUPTS,
-    );
+    final int enabledInterrupts = mmu.readRegisterByte(MemoryRegisters.ENABLED_INTERRUPTS);
 
     // If this is nonzero, then some interrupt that we are checking for was triggered
     if ((triggeredInterrupts & enabledInterrupts) != 0) {
@@ -285,10 +268,7 @@ class CPU {
         triggeredInterrupts &= ~MemoryRegisters.HILO_BIT;
       }
 
-      mmu.writeRegisterByte(
-        MemoryRegisters.TRIGGERED_INTERRUPTS,
-        triggeredInterrupts,
-      );
+      mmu.writeRegisterByte(MemoryRegisters.TRIGGERED_INTERRUPTS, triggeredInterrupts);
     }
   }
 
@@ -339,27 +319,23 @@ class CPU {
       halted = false;
     }
 
-    int op = nextUnsignedBytePC();
+    final int op = nextUnsignedBytePC();
 
     switch (op) {
       case 0x00:
         Instructions.NOP(this);
-        break;
       case 0xC4:
       case 0xCC:
       case 0xD4:
       case 0xDC:
         Instructions.CALL_cc_nn(this, op);
-        break;
       case 0xCD:
         Instructions.CALL_nn(this);
-        break;
       case 0x01:
       case 0x11:
       case 0x21:
       case 0x31:
         Instructions.LD_dd_nn(this, op);
-        break;
       case 0x06:
       case 0x0E:
       case 0x16:
@@ -369,91 +345,64 @@ class CPU {
       case 0x36:
       case 0x3E:
         Instructions.LD_r_n(this, op);
-        break;
       case 0x0A:
         Instructions.LD_A_BC(this);
-        break;
       case 0x1A:
         Instructions.LD_A_DE(this);
-        break;
       case 0x02:
         Instructions.LD_BC_A(this);
-        break;
       case 0x12:
         Instructions.LD_DE_A(this);
-        break;
       case 0xF2:
         Instructions.LD_A_C(this);
-        break;
       case 0xE8:
         Instructions.ADD_SP_n(this);
-        break;
       case 0x37:
         Instructions.SCF(this);
-        break;
       case 0x3F:
         Instructions.CCF(this);
-        break;
       case 0x3A:
         Instructions.LD_A_n(this);
-        break;
       case 0xEA:
         Instructions.LD_nn_A(this);
-        break;
       case 0xF8:
         Instructions.LDHL_SP_n(this);
-        break;
       case 0x2F:
         Instructions.CPL(this);
-        break;
       case 0xE0:
         Instructions.LD_FFn_A(this);
-        break;
       case 0xE2:
         Instructions.LDH_FFC_A(this);
-        break;
       case 0xFA:
         Instructions.LD_A_nn(this);
-        break;
       case 0x2A:
         Instructions.LD_A_HLI(this);
-        break;
       case 0x22:
         Instructions.LD_HLI_A(this);
-        break;
       case 0x32:
         Instructions.LD_HLD_A(this);
-        break;
       case 0x10:
         Instructions.STOP(this);
-        break;
       case 0xf9:
         Instructions.LD_SP_HL(this);
-        break;
       case 0xc5: // BC
       case 0xd5: // DE
       case 0xe5: // HL
       case 0xf5: // AF
         Instructions.PUSH_rr(this, op);
-        break;
       case 0xc1: // BC
       case 0xd1: // DE
       case 0xe1: // HL
       case 0xf1: // AF
         Instructions.POP_rr(this, op);
-        break;
       case 0x08:
         Instructions.LD_a16_SP(this);
-        break;
       case 0xd9:
         Instructions.RETI(this);
-        break;
       case 0xc3:
         Instructions.JP_nn(this);
-        break;
       case 0x07:
         Instructions.RLCA(this);
-        break;
       case 0x3c: // A
       case 0x4: // B
       case 0xc: // C
@@ -463,7 +412,6 @@ class CPU {
       case 0x34: // (HL)
       case 0x2c: // G
         Instructions.INC_r(this, op);
-        break;
       case 0x3d: // A
       case 0x05: // B
       case 0x0d: // C
@@ -473,13 +421,11 @@ class CPU {
       case 0x2d: // L
       case 0x35: // (HL)
         Instructions.DEC_r(this, op);
-        break;
       case 0x03:
       case 0x13:
       case 0x23:
       case 0x33:
         Instructions.INC_rr(this, op);
-        break;
       case 0xb8:
       case 0xb9:
       case 0xba:
@@ -489,25 +435,19 @@ class CPU {
       case 0xbe:
       case 0xbf:
         Instructions.CP_rr(this, op);
-        break;
       case 0xfe:
         Instructions.CP_n(this);
-        break;
       case 0x09:
       case 0x19:
       case 0x29:
       case 0x39:
         Instructions.ADD_HL_rr(this, op);
-        break;
       case 0xe9:
         Instructions.JP_HL(this);
-        break;
       case 0xde:
         Instructions.SBC_n(this);
-        break;
       case 0xd6:
         Instructions.SUB_n(this);
-        break;
       case 0x90:
       case 0x91:
       case 0x92:
@@ -517,10 +457,8 @@ class CPU {
       case 0x96: // (HL)
       case 0x97:
         Instructions.SUB_r(this, op);
-        break;
       case 0xc6:
         Instructions.ADD_n(this);
-        break;
       case 0x87:
       case 0x80:
       case 0x81:
@@ -530,7 +468,6 @@ class CPU {
       case 0x85:
       case 0x86: // (HL)
         Instructions.ADD_r(this, op);
-        break;
       case 0x88:
       case 0x89:
       case 0x8a:
@@ -540,7 +477,6 @@ class CPU {
       case 0x8d:
       case 0x8f:
         Instructions.ADC_r(this, op);
-        break;
       case 0xa0:
       case 0xa1:
       case 0xa2:
@@ -550,7 +486,6 @@ class CPU {
       case 0xa6: // (HL)
       case 0xa7:
         Instructions.AND_r(this, op);
-        break;
       case 0xa8:
       case 0xa9:
       case 0xaa:
@@ -560,10 +495,8 @@ class CPU {
       case 0xae:
       case 0xaf:
         Instructions.XOR_r(this, op);
-        break;
       case 0xf6:
         Instructions.OR_n(this);
-        break;
       case 0xb0:
       case 0xb1:
       case 0xb2:
@@ -573,37 +506,29 @@ class CPU {
       case 0xb6: // (HL)
       case 0xb7:
         Instructions.OR_r(this, op);
-        break;
       case 0x18:
         Instructions.JR_e(this);
-        break;
       case 0x27:
         Instructions.DAA(this);
-        break;
       case 0xca:
       case 0xc2: // NZ
       case 0xd2:
       case 0xda:
         Instructions.JP_c_nn(this, op);
-        break;
       case 0x20: // NZ
       case 0x28:
       case 0x30:
       case 0x38:
         Instructions.JR_c_e(this, op);
-        break;
       case 0xf0:
         Instructions.LDH_FFnn(this);
-        break;
       case 0x76:
         Instructions.HALT(this);
-        break;
       case 0xc0: // NZ non zero (Z)
       case 0xc8: // Z zero (Z)
       case 0xd0: // NC non carry (C)
       case 0xd8: // Carry (C)
         Instructions.RET_c(this, op);
-        break;
       case 0xc7:
       case 0xcf:
       case 0xd7:
@@ -613,25 +538,18 @@ class CPU {
       case 0xf7:
       case 0xFF:
         Instructions.RST_p(this, op);
-        break;
       case 0xf3:
         Instructions.DI(this);
-        break;
       case 0xfb:
         Instructions.EI(this);
-        break;
       case 0xE6:
         Instructions.AND_n(this);
-        break;
       case 0xEE:
         Instructions.XOR_n(this);
-        break;
       case 0xc9:
         Instructions.RET(this);
-        break;
       case 0xce:
         Instructions.ADC_n(this);
-        break;
       case 0x98:
       case 0x99:
       case 0x9a:
@@ -641,34 +559,25 @@ class CPU {
       case 0x9e: // (HL)
       case 0x9f:
         Instructions.SBC_r(this, op);
-        break;
       case 0x0F: // RRCA
         Instructions.RRCA(this);
-        break;
       case 0x1f: // RRA
         Instructions.RRA(this);
-        break;
       case 0x17: // RLA
         Instructions.RLA(this);
-        break;
       case 0x0b:
       case 0x1b:
       case 0x2b:
       case 0x3b:
         Instructions.DEC_rr(this, op);
-        break;
       case 0xcb:
         Instructions.CBPrefix(this);
-        break;
       default:
         switch (op & 0xC0) {
           case 0x40: // LD r, r
             Instructions.LD_r_r(this, op);
-            break;
           default:
-            throw Exception(
-              'Unsupported operation, (OP: 0x${op.toRadixString(16)})',
-            );
+            throw Exception('Unsupported operation, (OP: 0x${op.toRadixString(16)})');
         }
     }
   }

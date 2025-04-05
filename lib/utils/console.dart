@@ -11,7 +11,7 @@ class Console {
   /// Build a string to represent an object.
   static String build(dynamic obj, {int level = 0}) {
     try {
-      JsonEncoder encoder = JsonEncoder.withIndent('   ');
+      const JsonEncoder encoder = JsonEncoder.withIndent('   ');
       return encoder.convert(obj);
     } catch (e) {
       // TODO: error handling

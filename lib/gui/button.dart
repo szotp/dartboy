@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 /// Button widget with up and down callbacks.
 class Button extends StatefulWidget {
   /// Callback method executed when the button is pressed.
-  final Function onPressed;
+  final VoidCallback onPressed;
 
   /// Callback method executed on the button is released.
-  final Function onReleased;
+  final VoidCallback onReleased;
 
   /// Color of the button
   final Color color;
@@ -17,14 +17,7 @@ class Button extends StatefulWidget {
   /// Label
   final String label;
 
-  const Button({
-    required this.label,
-    required this.color,
-    required this.onPressed,
-    required this.onReleased,
-    this.labelColor = Colors.white,
-    super.key,
-  });
+  const Button({required this.label, required this.color, required this.onPressed, required this.onReleased, this.labelColor = Colors.white, super.key});
 
   @override
   ButtonState createState() {
@@ -41,9 +34,8 @@ class ButtonState extends State<Button> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 0.0),
+      padding: EdgeInsets.zero,
       child: InkWell(
-        enableFeedback: true,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         onHighlightChanged: (bool highlight) {
@@ -60,21 +52,12 @@ class ButtonState extends State<Button> {
         },
         onTap: () {},
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               height: 50.0,
               width: 50.0,
-              decoration: BoxDecoration(
-                color: pressed ? Colors.grey : widget.color,
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              child: Center(
-                child: Text(
-                  widget.label,
-                  style: TextStyle(color: widget.labelColor),
-                ),
-              ),
+              decoration: BoxDecoration(color: pressed ? Colors.grey : widget.color, borderRadius: BorderRadius.circular(20.0)),
+              child: Center(child: Text(widget.label, style: TextStyle(color: widget.labelColor))),
             ),
           ],
         ),

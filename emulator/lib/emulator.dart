@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'configuration.dart';
-import 'cpu/cpu.dart';
-import 'memory/cartridge.dart';
+import 'package:emulator/configuration.dart';
+import 'package:emulator/cpu/cpu.dart';
+import 'package:emulator/memory/cartridge.dart';
 
 /// Represents the state of the emulator.
 ///
@@ -48,7 +48,7 @@ class Emulator {
       return;
     }
 
-    Cartridge cartridge = Cartridge();
+    final Cartridge cartridge = Cartridge();
     cartridge.load(data);
 
     cpu = CPU(cartridge);
@@ -80,7 +80,7 @@ class Emulator {
       return;
     }
 
-    bool wasDebug = Configuration.debugInstructions;
+    final bool wasDebug = Configuration.debugInstructions;
     Configuration.debugInstructions = true;
     cpu?.step();
     Configuration.debugInstructions = wasDebug;

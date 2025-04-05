@@ -1,9 +1,8 @@
+import 'package:dartboy/gui/main_screen.dart';
 import 'package:flutter/material.dart';
 
-import 'gui/main_screen.dart';
-
 void main() {
-  runApp(DartBoy());
+  runApp(const DartBoy());
 }
 
 class DartBoy extends StatelessWidget {
@@ -14,11 +13,8 @@ class DartBoy extends StatelessWidget {
     return MaterialApp(
       title: 'GBC',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: MainScreen(title: 'GBC'),
+      home: const MainScreen(title: 'GBC'),
       debugShowCheckedModeBanner: false,
-      showPerformanceOverlay: false,
-      showSemanticsDebugger: false,
-      debugShowMaterialGrid: false,
     );
   }
 }

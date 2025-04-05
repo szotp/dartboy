@@ -1,13 +1,13 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import '../configuration.dart';
-import '../cpu/cpu.dart';
-import 'cartridge.dart';
-import 'dma.dart';
-import 'gamepad.dart';
-import 'memory_addresses.dart';
-import 'memory_registers.dart';
+import 'package:emulator/configuration.dart';
+import 'package:emulator/cpu/cpu.dart';
+import 'package:emulator/memory/cartridge.dart';
+import 'package:emulator/memory/dma.dart';
+import 'package:emulator/memory/gamepad.dart';
+import 'package:emulator/memory/memory_addresses.dart';
+import 'package:emulator/memory/memory_registers.dart';
 
 /// Generic memory container used to represent memory spaces in the gameboy system.
 ///
@@ -61,7 +61,6 @@ class Memory {
   DMA? dma;
 
   Memory(this.cpu) {
-    cpu = cpu;
     dma = null;
   }
 
@@ -223,7 +222,7 @@ class Memory {
     // Background Palette Data
     else if (address == MemoryRegisters.BACKGROUND_PALETTE_DATA) {
       if (cpu.cartridge.gameboyType == GameboyType.COLOR) {
-        int index = registers[MemoryRegisters.BACKGROUND_PALETTE_INDEX];
+        final int index = registers[MemoryRegisters.BACKGROUND_PALETTE_INDEX];
         int currentRegister = index & 0x3f;
         cpu.ppu.setBackgroundPalette(currentRegister, value);
 
@@ -237,7 +236,7 @@ class Memory {
     // Sprite Palette Data
     else if (address == MemoryRegisters.SPRITE_PALETTE_DATA) {
       if (cpu.cartridge.gameboyType == GameboyType.COLOR) {
-        int index = registers[MemoryRegisters.SPRITE_PALETTE_INDEX];
+        final int index = registers[MemoryRegisters.SPRITE_PALETTE_INDEX];
         int currentRegister = index & 0x3f;
         cpu.ppu.setSpritePalette(currentRegister, value);
 
@@ -254,9 +253,9 @@ class Memory {
         //print('Not possible to used H-DMA transfer on GB classic.');
 
         // Get the configuration of the H-DMA transfer
-        int length = ((value & 0x7f) + 1) * 0x10;
-        int source = ((registers[0x51] & 0xff) << 8) | (registers[0x52] & 0xF0);
-        int destination = ((registers[0x53] & 0x1f) << 8) | (registers[0x54] & 0xF0);
+        final int length = ((value & 0x7f) + 1) * 0x10;
+        final int source = ((registers[0x51] & 0xff) << 8) | (registers[0x52] & 0xF0);
+        final int destination = ((registers[0x53] & 0x1f) << 8) | (registers[0x54] & 0xF0);
 
         // H-Blank DMA
         if ((value & 0x80) != 0) {
@@ -313,7 +312,7 @@ class Memory {
     }
     // OAM DMA transfer
     else if (address == MemoryRegisters.DMA) {
-      int addressBase = value * 0x100;
+      final int addressBase = value * 0x100;
 
       for (int i = 0; i < 0xA0; i++) {
         writeByte(0xFE00 + i, readByte(addressBase + i));
@@ -384,7 +383,7 @@ class Memory {
 
       return reg;
     } else if (address == MemoryRegisters.NR52) {
-      int reg = registers[MemoryRegisters.NR52] & 0x80;
+      final int reg = registers[MemoryRegisters.NR52] & 0x80;
 
       //TODO <ADD CODE HERE>
       //if(this.cpu.sound.channel1.isPlaying){reg |= 0x01};

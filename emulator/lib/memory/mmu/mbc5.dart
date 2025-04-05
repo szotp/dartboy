@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import '../memory.dart';
-import '../memory_addresses.dart';
-import 'mbc.dart';
-import 'mbc1.dart';
+import 'package:emulator/memory/memory.dart';
+import 'package:emulator/memory/memory_addresses.dart';
+import 'package:emulator/memory/mmu/mbc.dart';
+import 'package:emulator/memory/mmu/mbc1.dart';
 
 class MBC5 extends MBC {
   MBC5(super.cpu);

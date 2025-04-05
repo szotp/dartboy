@@ -1,11 +1,10 @@
 import 'dart:typed_data' show Float32List;
 import 'dart:ui';
 
+import 'package:dartboy/utils/color_converter.dart';
 import 'package:emulator/emulator.dart';
 import 'package:emulator/graphics/ppu.dart';
 import 'package:flutter/material.dart';
-
-import '../utils/color_converter.dart';
 
 class LCDWidget extends StatefulWidget {
   final Emulator emulator;
@@ -23,7 +22,7 @@ class _LCDState extends State<LCDWidget> with SingleTickerProviderStateMixin {
     final ppu = widget.emulator.cpu?.ppu;
 
     if (ppu == null) {
-      return SizedBox(child: Placeholder());
+      return const SizedBox(child: Placeholder());
     }
 
     return Container(
@@ -54,18 +53,18 @@ class _LCDPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    int width = PPU.LCD_WIDTH;
-    int height = PPU.LCD_HEIGHT;
+    const int width = PPU.LCD_WIDTH;
+    const int height = PPU.LCD_HEIGHT;
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
-        Paint color = Paint();
+        final Paint color = Paint();
         color.style = PaintingStyle.stroke;
         color.strokeWidth = 1.0;
 
         color.color = ColorConverter.toColor(ppu.current[x + y * PPU.LCD_WIDTH]);
 
-        List<double> points = List<double>.empty(growable: true);
+        final List<double> points = List<double>.empty(growable: true);
         points.add(x.toDouble());
         points.add(y.toDouble());
 

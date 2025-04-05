@@ -1,5 +1,5 @@
-import '../memory/cartridge.dart';
-import 'cpu.dart';
+import 'package:emulator/cpu/cpu.dart';
+import 'package:emulator/memory/cartridge.dart';
 
 /// CPU registers, each register has 8 bits
 ///
@@ -224,8 +224,8 @@ class Registers {
   /// It can set a register pair or the CPU SP value.
   /// Returns the value of the register
   void setRegisterPairSP(int r, int value) {
-    int hi = (value >> 8) & 0xFF;
-    int lo = value & 0xFF;
+    final int hi = (value >> 8) & 0xFF;
+    final int lo = value & 0xFF;
 
     if (r == Registers.BC) {
       b = hi;

@@ -1,4 +1,4 @@
-import '../memory.dart';
+import 'package:emulator/memory/memory.dart';
 
 /// The MMU (memory management unit) is used to access memory.
 ///

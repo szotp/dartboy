@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import '../cpu/cpu.dart';
-import 'mmu/mbc1.dart';
-import 'mmu/mbc2.dart';
-import 'mmu/mbc3.dart';
-import 'mmu/mbc5.dart';
-import 'mmu/mmu.dart';
+import 'package:emulator/cpu/cpu.dart';
+import 'package:emulator/memory/mmu/mbc1.dart';
+import 'package:emulator/memory/mmu/mbc2.dart';
+import 'package:emulator/memory/mmu/mbc3.dart';
+import 'package:emulator/memory/mmu/mbc5.dart';
+import 'package:emulator/memory/mmu/mmu.dart';
 
 /// Stores the cartridge information and data.
 ///
@@ -133,7 +133,7 @@ class Cartridge {
     } else if (romType == 54) {
       romBanks = 96;
     } else {
-      romBanks = (pow(2, romType + 1)).toInt();
+      romBanks = pow(2, romType + 1).toInt();
     }
   }
 

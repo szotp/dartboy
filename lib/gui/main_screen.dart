@@ -1,12 +1,11 @@
+import 'package:dartboy/gui/Modal.dart';
+import 'package:dartboy/gui/button.dart';
+import 'package:dartboy/gui/lcd.dart';
 import 'package:emulator/emulator.dart';
 import 'package:emulator/memory/gamepad.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import './Modal.dart';
-import './button.dart';
-import './lcd.dart';
 
 String? preload = "sprite_priority.gb";
 
@@ -74,20 +73,16 @@ class MainScreenState extends State<MainScreen> {
         focusNode: focusNode,
         onKeyEvent: _onKeyEvent,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             // LCD
             Expanded(child: LCDWidget(emulator: emulator)),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   // Buttons (DPAD + AB)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       // DPAD
                       Column(
@@ -114,7 +109,7 @@ class MainScreenState extends State<MainScreen> {
                                 },
                                 label: "Left",
                               ),
-                              SizedBox(width: 50, height: 50),
+                              const SizedBox(width: 50, height: 50),
                               Button(
                                 color: Colors.blueAccent,
                                 onPressed: () {
@@ -169,7 +164,6 @@ class MainScreenState extends State<MainScreen> {
                   // Button (SELECT + START)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Button(
                         color: Colors.orange,
@@ -211,7 +205,7 @@ class MainScreenState extends State<MainScreen> {
                             emulator.run();
                           },
                           color: Colors.black,
-                          child: Text('Run', style: const TextStyle(color: Colors.white)),
+                          child: const Text('Run', style: TextStyle(color: Colors.white)),
                         ),
                         MaterialButton(
                           onPressed: () {
@@ -223,21 +217,21 @@ class MainScreenState extends State<MainScreen> {
                             emulator.pause();
                           },
                           color: Colors.black,
-                          child: Text('Pause', style: const TextStyle(color: Colors.white)),
+                          child: const Text('Pause', style: TextStyle(color: Colors.white)),
                         ),
                         MaterialButton(
                           onPressed: () {
                             emulator.reset();
                           },
                           color: Colors.black,
-                          child: Text('Reset', style: const TextStyle(color: Colors.white)),
+                          child: const Text('Reset', style: TextStyle(color: Colors.white)),
                         ),
                         MaterialButton(
                           onPressed: () {
                             emulator.debugStep();
                           },
                           color: Colors.black,
-                          child: Text('Step', style: const TextStyle(color: Colors.white)),
+                          child: const Text('Step', style: TextStyle(color: Colors.white)),
                         ),
                         MaterialButton(
                           onPressed: () async {
@@ -255,7 +249,7 @@ class MainScreenState extends State<MainScreen> {
                             emulator.loadROM(result.files.single.bytes!);
                           },
                           color: Colors.black,
-                          child: Text("Load", style: const TextStyle(color: Colors.white)),
+                          child: const Text("Load", style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
@@ -270,8 +264,8 @@ class MainScreenState extends State<MainScreen> {
   }
 
   /// Show a text input dialog to introduce string values.
-  textInputDialog({String? hint, Function? onOpen}) async {
-    TextEditingController controller = TextEditingController();
+  Future<void> textInputDialog({String? hint, VoidCallback? onOpen}) async {
+    final TextEditingController controller = TextEditingController();
     controller.text = hint ?? '';
 
     await showDialog<String>(
@@ -294,7 +288,7 @@ class MainScreenState extends State<MainScreen> {
             MaterialButton(
               child: const Text('Open'),
               onPressed: () {
-                onOpen?.call(controller.text);
+                onOpen?.call();
                 Navigator.pop(context);
               },
             ),

@@ -1,5 +1,5 @@
-import 'memory.dart';
-import 'memory_registers.dart';
+import 'package:emulator/memory/memory.dart';
+import 'package:emulator/memory/memory_registers.dart';
 
 /// Represents a H-Blank DMA (direct memory access) transfer session.
 ///
@@ -52,7 +52,7 @@ class DMA {
       //this.memory = null;
       //print("Finished DMA from " + this.source.toString() + " to " + this.destination.toString());
     } else {
-      memory.registers[MemoryRegisters.HDMA] = (length ~/ 0x10 - 1);
+      memory.registers[MemoryRegisters.HDMA] = length ~/ 0x10 - 1;
     }
   }
 }

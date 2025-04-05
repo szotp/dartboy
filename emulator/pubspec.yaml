@@ -6,4 +6,4 @@ environment:
 dev_dependencies:
   test: any
   image: any
-  
+  lint: any

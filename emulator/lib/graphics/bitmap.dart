@@ -41,7 +41,7 @@ class BitmapFile {
 
   /// Get the bitmap file byte data
   Uint8List getFile() {
-    Uint8List data = Uint8List.fromList(header);
+    final Uint8List data = Uint8List.fromList(header);
     data.setRange(BitmapFile.headerSize, length(), image.data);
     return data;
   }

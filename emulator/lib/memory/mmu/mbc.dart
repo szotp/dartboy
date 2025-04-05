@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import '../memory_addresses.dart';
-import 'mmu.dart';
+import 'package:emulator/memory/memory_addresses.dart';
+import 'package:emulator/memory/mmu/mmu.dart';
 
 /// Abstract implementation of features shared by all Memory Banking Chips.
 ///
@@ -36,7 +36,7 @@ class MBC extends MMU {
       throw Exception('Cartridge has no battery.');
     }
 
-    int length = cartRam.length;
+    final int length = cartRam.length;
 
     cartRam = file.readAsBytesSync();
 
@@ -51,7 +51,7 @@ class MBC extends MMU {
       throw Exception('Cartridge has no battery.');
     }
 
-    file.writeAsBytes(cartRam, flush: true, mode: FileMode.write);
+    file.writeAsBytes(cartRam, flush: true);
   }
 
   @override

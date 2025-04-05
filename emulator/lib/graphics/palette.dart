@@ -1,5 +1,5 @@
-import '../cpu/cpu.dart';
-import '../memory/memory_registers.dart';
+import 'package:emulator/cpu/cpu.dart';
+import 'package:emulator/memory/memory_registers.dart';
 
 /// Palette is used to store the gameboy palette colors.
 ///
@@ -28,12 +28,8 @@ class GBPalette implements Palette {
   List<int> colors;
 
   GBPalette(this.cpu, this.colors, this.register) {
-    if (register != MemoryRegisters.BGP &&
-        register != MemoryRegisters.OBP0 &&
-        register != MemoryRegisters.OBP1) {
-      throw Exception(
-        "Register must be one of R.R_BGP, R.R_OBP0, or R.R_OBP1.",
-      );
+    if (register != MemoryRegisters.BGP && register != MemoryRegisters.OBP0 && register != MemoryRegisters.OBP1) {
+      throw Exception("Register must be one of R.R_BGP, R.R_OBP0, or R.R_OBP1.");
     }
 
     if (colors.length < 4) {
@@ -43,9 +39,7 @@ class GBPalette implements Palette {
 
   @override
   int getColor(int number) {
-    return colors[(cpu.mmu.readRegisterByte(register) >>
-            (number * 2)) &
-        0x3];
+    return colors[(cpu.mmu.readRegisterByte(register) >> (number * 2)) & 0x3];
   }
 }
 

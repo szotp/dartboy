@@ -30,8 +30,8 @@ extension on PPU {
   img.Image makeSnapshot() {
     final image = img.Image(width: PPU.LCD_WIDTH, height: PPU.LCD_HEIGHT);
 
-    int width = PPU.LCD_WIDTH;
-    int height = PPU.LCD_HEIGHT;
+    const int width = PPU.LCD_WIDTH;
+    const int height = PPU.LCD_HEIGHT;
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {

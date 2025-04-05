@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import '../memory.dart';
-import '../memory_addresses.dart';
-import 'mbc.dart';
+import 'package:emulator/memory/memory.dart';
+import 'package:emulator/memory/memory_addresses.dart';
+import 'package:emulator/memory/mmu/mbc.dart';
 
 /// Memory banking chip 1 (MBC1).
 ///
@@ -64,8 +64,7 @@ class MBC1 extends MBC {
       }
     }
     // Writing to this address space selects the lower 5 bits of the ROM Bank Number.
-    else if (address >= MBC1.ROM_BANK_SELECT_START &&
-        address < MBC1.ROM_BANK_SELECT_END) {
+    else if (address >= MBC1.ROM_BANK_SELECT_START && address < MBC1.ROM_BANK_SELECT_END) {
       selectROMBank((romBank & 0x60) | (value & 0x1F));
     }
     // Select a RAM Bank in range from 00-03h, or to specify the upper two bits (Bit 5-6) of the ROM Bank number, depending on the current ROM/RAM Mode.
@@ -78,20 +77,15 @@ class MBC1 extends MBC {
       }
     }
     // Selects whether the two bits of the above register should be used as upper two bits of the ROM Bank, or as RAM Bank Number.
-    else if (address >= MBC1.SELECT_MEMORY_MODE_START &&
-        address < MBC1.SELECT_MEMORY_MODE_END) {
+    else if (address >= MBC1.SELECT_MEMORY_MODE_START && address < MBC1.SELECT_MEMORY_MODE_END) {
       if (cpu.cartridge.ramBanks == 3) {
-        modeSelect = (value & 0x01);
+        modeSelect = value & 0x01;
       }
     }
     // This area is used to address external RAM in the cartridge.
-    else if (address >= MemoryAddresses.SWITCHABLE_RAM_START &&
-        address < MemoryAddresses.SWITCHABLE_RAM_END) {
+    else if (address >= MemoryAddresses.SWITCHABLE_RAM_START && address < MemoryAddresses.SWITCHABLE_RAM_END) {
       if (ramEnabled) {
-        cartRam[address -
-                MemoryAddresses.SWITCHABLE_RAM_START +
-                ramPageStart] =
-            value;
+        cartRam[address - MemoryAddresses.SWITCHABLE_RAM_START + ramPageStart] = value;
       }
     } else {
       super.writeByte(address, value);

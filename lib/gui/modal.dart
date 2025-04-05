@@ -4,12 +4,7 @@ class Modal {
   /// Show a alert modal
   ///
   /// The onCancel callbacks receive BuildContext context as argument.
-  static void alert(
-    BuildContext context,
-    String title,
-    String message, {
-    Function? onCancel,
-  }) {
+  static void alert(BuildContext context, String title, String message, {VoidCallback? onCancel}) {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
@@ -22,7 +17,7 @@ class Modal {
                 Navigator.pop(context);
                 onCancel?.call();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
           content: Text(message),

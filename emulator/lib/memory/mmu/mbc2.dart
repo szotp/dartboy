@@ -1,4 +1,4 @@
-import 'mbc.dart';
+import 'package:emulator/memory/mmu/mbc.dart';
 
 class MBC2 extends MBC {
   MBC2(super.cpu);

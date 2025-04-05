@@ -15,8 +15,8 @@ class PaletteColors {
   /// Fill values into the list.
   static List<PaletteColors> create() {
     // Default colours
-    List<int> defaultColors = [0xFFFFFF, 0x8BC34A, 0x4CAF50, 0];
-    PaletteColors defaultPalette = PaletteColors(defaultColors, defaultColors, defaultColors);
+    final List<int> defaultColors = [0xFFFFFF, 0x8BC34A, 0x4CAF50, 0];
+    final PaletteColors defaultPalette = PaletteColors(defaultColors, defaultColors, defaultColors);
 
     final list = List<PaletteColors>.filled(0x100, defaultPalette);
     list[0xFF] = PaletteColors([0xFFFFFF, 0xFF9C00, 0xFF0000, 0x000000], [0xFFFFFF, 0xFF9C00, 0xFF0000, 0x000000], [0xFFFFFF, 0xFF9C00, 0xFF0000, 0x000000]);
