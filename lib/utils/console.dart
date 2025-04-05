@@ -13,7 +13,9 @@ class Console {
     try {
       JsonEncoder encoder = JsonEncoder.withIndent('   ');
       return encoder.convert(obj);
-    } catch (e) {}
+    } catch (e) {
+      // TODO: error handling
+    }
 
     return obj.toString();
   }

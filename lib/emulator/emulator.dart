@@ -20,16 +20,16 @@ class Emulator {
   EmulatorState state = EmulatorState.WAITING;
 
   /// CPU object
-  late CPU cpu;
+  CPU? cpu;
 
   /// Press a gamepad button down (update memory register).
   void buttonDown(int button) {
-    cpu.buttons[button] = true;
+    cpu?.buttons[button] = true;
   }
 
   /// Release a gamepad button (update memory register).
   void buttonUp(int button) {
-    cpu.buttons[button] = false;
+    cpu?.buttons[button] = false;
   }
 
   /// Load a ROM from a file and create the HW components for the emulator.
@@ -52,10 +52,10 @@ class Emulator {
   /// Print some information about the ROM file loaded into the emulator.
   void printCartridgeInfo() {
     print('Catridge info');
-    print('Type: ${cpu.cartridge.type}');
-    print('Name: ${cpu.cartridge.name}');
-    print('GB: ${cpu.cartridge.gameboyType}');
-    print('SGB: ${cpu.cartridge.superGameboy}');
+    print('Type: ${cpu?.cartridge.type}');
+    print('Name: ${cpu?.cartridge.name}');
+    print('GB: ${cpu?.cartridge.gameboyType}');
+    print('SGB: ${cpu?.cartridge.superGameboy}');
   }
 
   /// Reset the emulator, stop running the code and unload the cartridge
@@ -73,7 +73,7 @@ class Emulator {
 
     bool wasDebug = Configuration.debugInstructions;
     Configuration.debugInstructions = true;
-    cpu.step();
+    cpu?.step();
     Configuration.debugInstructions = wasDebug;
   }
 
@@ -104,7 +104,7 @@ class Emulator {
 
         try {
           for (var i = 0; i < cycles; i++) {
-            cpu.step();
+            cpu?.step();
           }
         } catch (e, stacktrace) {
           print('Error occured, emulation stoped.');

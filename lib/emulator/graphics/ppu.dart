@@ -1,4 +1,4 @@
-import 'package:dartboy/gui/main_screen.dart';
+import 'package:flutter/foundation.dart';
 
 import '../configuration.dart';
 import '../cpu/cpu.dart';
@@ -8,10 +8,12 @@ import '../memory/memory_registers.dart';
 import './palette.dart';
 import './palette_colors.dart';
 
+typedef OnLineReady = void Function();
+
 /// LCD class handles all the screen drawing tasks.
 ///
 /// Is responsible for managing the sprites and background layers.
-class PPU {
+class PPU extends ChangeNotifier {
   /// Width in pixels of the physical gameboy LCD.
   static const int LCD_WIDTH = 160;
 
@@ -302,7 +304,7 @@ class PPU {
       current = temp;
 
       // ignore: invalid_use_of_protected_member
-      MainScreen.lcdState.setState(() {});
+      notifyListeners();
 
       //Clear drawing buffer
       buffer.fillRange(0, buffer.length, 0);

@@ -42,6 +42,8 @@ wgbc/\.vs/
 *.rtc
 *.sav
 *.tmp
+*.gb
 .dart_tool
 .flutter-plugins-dependencies
 .flutter-plugins
+assets/pokemon.gb
