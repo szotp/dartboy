@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:emulator/configuration.dart';
 import 'package:emulator/cpu/cpu.dart';
 import 'package:emulator/memory/cartridge.dart';
 import 'package:emulator/memory/dma.dart';
@@ -328,9 +327,8 @@ class Memory {
       // Serial transfer starts if the 7th bit is set
       if (value == 0x81) {
         // Print data passed thought the serial port as character.
-        if (Configuration.printSerialCharacters) {
-          print(String.fromCharCode(registers[MemoryRegisters.SERIAL_SB]));
-        }
+        final character = String.fromCharCode(registers[MemoryRegisters.SERIAL_SB]);
+        cpu.configuration.onCharacter?.call(character);
       }
     } else if (0x30 <= address && address < 0x40) {
       //this.cpu.sound.channel3.updateSample(address - 0x30, (byte) value);

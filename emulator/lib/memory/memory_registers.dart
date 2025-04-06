@@ -112,3 +112,5 @@ class MemoryRegisters {
   static const int LCD_STAT_MODE_OAM_RAM_SEARCH_BIT = 0x2;
   static const int LCD_STAT_MODE_DATA_TRANSFER_BIT = 0x3;
 }
+
+extension type const Address(int id) {}

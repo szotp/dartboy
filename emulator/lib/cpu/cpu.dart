@@ -1,3 +1,4 @@
+import 'package:emulator/configuration.dart';
 import 'package:emulator/cpu/instructions.dart';
 import 'package:emulator/cpu/registers.dart';
 import 'package:emulator/graphics/ppu.dart';
@@ -59,31 +60,19 @@ class CPU {
   int clockSpeed = 0;
 
   /// Stores the PC and SP pointers
-  List<int> pointers = List<int>.filled(8, 0);
+  //List<int> pointers = List<int>.filled(8, 0);
 
   /// 16 bit Program Counter, the memory address of the next instruction to be fetched
-  set pc(int value) {
-    pointers[PC] = value;
-  }
-
-  int get pc {
-    return pointers[PC];
-  }
+  int pc = 0;
 
   /// 16 bit Stack Pointer, the memory address of the top of the stack
-  set sp(int value) {
-    pointers[SP] = value;
-  }
+  int sp = 0;
 
-  int get sp {
-    return pointers[SP];
-  }
+  final Configuration configuration;
 
-  CPU(this.cartridge) {
-    pointers = List<int>.filled(8, 0);
-
+  CPU(this.cartridge, this.configuration) {
     mmu = cartridge.createController(this);
-    ppu = PPU(this);
+    ppu = PPU(this, configuration);
     registers = Registers(this);
 
     reset();

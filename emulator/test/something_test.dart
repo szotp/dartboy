@@ -1,20 +1,25 @@
 import 'dart:io';
 
+import 'package:emulator/configuration.dart';
 import 'package:emulator/emulator.dart';
 import 'package:emulator/graphics/ppu.dart';
 import 'package:image/image.dart' as img;
 import 'package:test/test.dart';
 
+const repo = '/Users/pawelszot/Downloads/gb-test-roms-master';
+
 void main() {
-  group('A group of tests', () {
-    setUp(() {
-      // Additional setup goes here.
-    });
+  group('cpu_instrs', () {
+    test('01-special.gb', () {
+      final rom = File('$repo/cpu_instrs/individual/01-special.gb').readAsBytesSync();
+      final emulator = Emulator(Configuration());
 
-    final rom = File("/Users/pawelszot/Development/dartboy/assets/pokemon.gb").readAsBytesSync();
-
-    test('First Test', () {
-      final emulator = Emulator();
+      emulator.configuration.setSerialPortHandler((x) {
+        if (x.startsWith("Failed")) {
+          print(x);
+          emulator.pause();
+        }
+      });
       emulator.loadROM(rom);
 
       for (int i = 0; i < 200; i++) {
@@ -24,6 +29,23 @@ void main() {
       img.encodePngFile("output.png", emulator.cpu!.ppu.makeSnapshot());
     });
   });
+}
+
+extension on Configuration {
+  void setSerialPortHandler(void Function(String) callback) {
+    final buffer = StringBuffer();
+
+    onCharacter = (x) {
+      if (x == '\n') {
+        final line = "$buffer";
+        buffer.clear();
+
+        callback(line);
+      } else {
+        buffer.write(x);
+      }
+    };
+  }
 }
 
 extension on PPU {

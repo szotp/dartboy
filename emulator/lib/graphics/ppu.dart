@@ -75,7 +75,9 @@ class PPU {
   /// The last measured Emulator.cycle.
   int lastCoreCycle = 0;
 
-  PPU(this.cpu);
+  final Configuration configuration;
+
+  PPU(this.cpu, this.configuration);
 
   /// Initializes all palette RAM to the default on Gameboy boot.
   void reset() {
@@ -329,7 +331,7 @@ class PPU {
   /// @param data The raster to write to.
   /// @param scanline The current scanline.
   void drawBackgroundTiles(Int32List data, int scanline) {
-    if (!Configuration.drawBackgroundLayer) {
+    if (!configuration.drawBackgroundLayer) {
       return;
     }
 
@@ -498,7 +500,7 @@ class PPU {
   /// @param data The raster to write to.
   /// @param scanline The current scanline.
   void drawSprites(Int32List data, int scanline) {
-    if (!Configuration.drawSpriteLayer) {
+    if (!configuration.drawSpriteLayer) {
       return;
     }
 

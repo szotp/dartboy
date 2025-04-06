@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dartboy/gui/Modal.dart';
 import 'package:dartboy/gui/button.dart';
 import 'package:dartboy/gui/lcd.dart';
+import 'package:emulator/configuration.dart';
 import 'package:emulator/emulator.dart';
 import 'package:emulator/graphics/ppu.dart';
 import 'package:emulator/memory/gamepad.dart';
@@ -11,7 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
-String? preload = "pokemon.gb";
+String? preload = "pokemon.gb"; //
+//String? preload = "01-special.gb";
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.title});
@@ -25,7 +27,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class MainScreenState extends State<MainScreen> {
-  final emulator = Emulator();
+  final emulator = Emulator(Configuration());
 
   @override
   void initState() {

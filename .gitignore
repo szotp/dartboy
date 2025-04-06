@@ -47,3 +47,4 @@ wgbc/\.vs/
 .flutter-plugins-dependencies
 .flutter-plugins
 assets/pokemon.gb
+emulator/output.png

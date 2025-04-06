@@ -32,6 +32,10 @@ class Emulator {
   /// CPU object
   CPU? cpu;
 
+  final Configuration configuration;
+
+  Emulator(this.configuration);
+
   /// Press a gamepad button down (update memory register).
   void setButtonDown(GamepadButton button) {
     cpu?.buttons[button.index] = true;
@@ -50,7 +54,7 @@ class Emulator {
     }
 
     final Cartridge cartridge = Cartridge(data);
-    cpu = CPU(cartridge);
+    cpu = CPU(cartridge, configuration);
 
     state = EmulatorState.READY;
 
@@ -79,10 +83,10 @@ class Emulator {
       return;
     }
 
-    final bool wasDebug = Configuration.debugInstructions;
-    Configuration.debugInstructions = true;
+    final bool wasDebug = configuration.debugInstructions;
+    configuration.debugInstructions = true;
     cpu?.step();
-    Configuration.debugInstructions = wasDebug;
+    configuration.debugInstructions = wasDebug;
   }
 
   /// Run the emulation all full speed.
@@ -101,7 +105,7 @@ class Emulator {
   }
 
   void stepFrame() {
-    for (var i = 0; i < _cycles; i++) {
+    for (var i = 0; i < _cycles && state == EmulatorState.RUNNING; i++) {
       cpu!.step();
     }
   }
