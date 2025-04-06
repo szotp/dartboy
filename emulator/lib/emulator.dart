@@ -105,7 +105,7 @@ class Emulator {
   }
 
   void stepFrame() {
-    for (var i = 0; i < _cycles && state == EmulatorState.RUNNING; i++) {
+    for (var i = 0; i < _cycles; i++) {
       cpu!.step();
     }
   }

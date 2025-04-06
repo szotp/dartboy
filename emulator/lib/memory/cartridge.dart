@@ -71,17 +71,14 @@ final class Cartridge {
       print('Created basic MMU unit.');
       return MMU(cpu);
     } else if (type == CartridgeType.MBC1 || type == CartridgeType.MBC1_RAM || type == CartridgeType.MBC1_RAM_BATT) {
-      print('Created MBC1 unit.');
       return MBC1(cpu);
     } else if (type == CartridgeType.MBC2 || type == CartridgeType.MBC2_BATT) {
-      print('Created MBC2 unit.');
       return MBC2(cpu);
     } else if (type == CartridgeType.MBC3 ||
         type == CartridgeType.MBC3_RAM ||
         type == CartridgeType.MBC3_RAM_BATT ||
         type == CartridgeType.MBC3_TIMER_BATT ||
         type == CartridgeType.MBC3_TIMER_RAM_BATT) {
-      print('Created MBC3 unit.');
       return MBC3(cpu);
     } else if (type == CartridgeType.MBC5 ||
         type == CartridgeType.MBC5_RAM ||
@@ -89,11 +86,10 @@ final class Cartridge {
         type == CartridgeType.MBC5_RUMBLE ||
         type == CartridgeType.MBC5_RUMBLE_SRAM ||
         type == CartridgeType.MBC5_RUMBLE_SRAM_BATT) {
-      print('Created MBC5 unit.');
       return MBC5(cpu);
     }
 
-    throw "unknown";
+    throw "Unsupported MMU";
   }
 
   /// Checks if the cartridge has a internal battery to keep the RAM state.

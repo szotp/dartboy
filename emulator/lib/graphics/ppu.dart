@@ -562,6 +562,9 @@ class PPU {
   ///
   /// @return The enabled state.
   bool displayEnabled() {
+    if (!cpu.configuration.displayEnabled) {
+      return false;
+    }
     return (cpu.mmu.readRegisterByte(MemoryRegisters.LCDC) & MemoryRegisters.LCDC_CONTROL_OPERATION_BIT) != 0;
   }
 

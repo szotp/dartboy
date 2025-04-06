@@ -9,7 +9,7 @@ import 'package:emulator/memory/mmu/mmu.dart';
 /// CPU class is responsible for the instruction execution, interrupts and timing of the system.
 ///
 /// Sharp LR35902
-class CPU {
+final class CPU {
   static const int PC = 0;
   static const int SP = 1;
 

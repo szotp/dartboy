@@ -19,4 +19,6 @@ class Configuration {
   bool debugInstructions = false;
 
   OnCharacter? onCharacter;
+
+  bool displayEnabled = true;
 }
